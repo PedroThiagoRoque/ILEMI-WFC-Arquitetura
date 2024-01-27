@@ -1,31 +1,37 @@
 {
   "name": "wfc-arquitetura",
-  "version": "1.0.0",
-  "description": "Configurador de planta baixa com Wave Function Collapse",
-  "main": "index.js",
+  "version": "0.5.0",
+  "description": "Configurador de habitação com wave function collapse",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c ./rollup.config.mjs",
-    "watch": "rollup -w -c ./rollup.config.mjs",
-    "start": "npm run build && node index.js",
-    "roda": "node index.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PedroThiagoRoque/WFC-Arquitetura.git"
   },
   "keywords": [
+    "Habitação",
     "Wave",
     "Function",
-    "Collapse",
-    "AI"
+    "collapse",
+    "Arquitetura",
+    "3D",
+    "BIM"
   ],
   "author": "Pedro Thiago Roque",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PedroThiagoRoque/WFC-Arquitetura/issues"
+  },
+  "homepage": "https://github.com/PedroThiagoRoque/WFC-Arquitetura#readme",
   "dependencies": {
     "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "nodemon": "^3.0.2",
-    "rollup": "^4.9.0",
-    "three": "^0.159.0"
-  },
-  "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3"
+    "nodemon": "^3.0.3",
+    "rollup": "^4.9.6",
+    "three": "^0.160.1"
   }
 }

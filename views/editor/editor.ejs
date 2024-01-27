@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout Responsivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #D4E7C5;
+    }
+    header {
+      background-color: white;
+      width: 100%;
+      padding: 1.2rem 3rem;
+      margin-bottom: 2rem;
+    }
+    .h2-header {
+        font-family: 'Righteous', sans-serif;
+      margin-left: 15px; /* Ajuste conforme necessário */
+      color: #99BC85;
+    }
+    .rounded-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    footer {
+      color: #99BC85;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: white;
+      padding: 10px 0;
+    }
+    a, a:hover, a:active, a:visited{
+        color: #99BC85;  
+    }
+
+    .table-container {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.table-container td {
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 5px;
+  height: 3vw; 
+}
+
+    .table-container {
+    background-color: white;
+    }
+
+    .btn-light {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: inherit;
+}
+
+
+    .btn-verde, .btn-verde:hover, .btn-verde:visited{
+    color: white;
+    background-color: #99BC85;
+    border-color: #5f7a4f;
+    }
+
+    .btn-verde:active { 
+        background-color: #5f7a4f;
+    }
+
+    #popup-container button {
+     margin: 2px;
+    }
+
+    #popup-container {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    }
+
+
+
+    @media (max-width: 768px) {
+  .table-container td {
+    height: 3vw; 
+  }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h2 class="h2-header">NOVA ILÊ</h2>
+  </header>
+
+  <div class="container">
+    <div class="row" id="principal">
+      <div class="col-sm-12 col-md-6">
+        <div class="rounded-container">
+          
+            <div id="table-container"></div>
+            <button id="generate-table" class="btn btn-verde shadow-none mt-3">Gerar Tabela</button>
+            
+        </div>
+      </div>
+      <div class="col-sm-12 col-md-6">
+        <div class="rounded-container">
+          <!-- Conteúdo da coluna 2 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Criado por <a href="https://github.com/PedroThiagoRoque" target="_blank">Pedro Thiago Roque</a>
+  </footer>
+
+  
+    <div id="popup-container" style="display: none; position: absolute; z-index: 10;">
+    
+    </div>
+  
+
+  <script src="/public/editor.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/js/bootstrap.min.js"></script>
+</body>
+</html>
