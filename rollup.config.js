@@ -1,5 +1,6 @@
 // rollup.config.mjs
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import nodeResolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default {
 	input: 'views/editor/graficos.js',
@@ -7,5 +8,10 @@ export default {
 		file: 'public/bundle.js',
 		format: 'cjs'
 	},
-	plugins: [nodeResolve()]
+	plugins: [
+		nodeResolve({
+		  extensions: ['.mjs', '.js', '.json', '.node']
+		}),commonjs({extensions: ['.mjs', '.js', '.json', '.node']})
+		// ... outros plugins
+	  ]
 };

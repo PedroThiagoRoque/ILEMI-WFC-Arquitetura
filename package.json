@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c  ./rollup.config.js --bundleConfigAsCjs",
     "start": "node server.js",
-    "dev": "npm run build && nodemon server.js"
+    "dev": "nodemon --exec  \"npm run build && npm run start\" "
   },
   "repository": {
     "type": "git",
@@ -29,16 +29,23 @@
   },
   "homepage": "https://github.com/PedroThiagoRoque/WFC-Arquitetura#readme",
   "dependencies": {
-    "bim-fragment": "^1.3.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "nodemon": "^3.0.3",
     "openbim-components": "^1.3.2",
     "rollup": "^4.9.6",
     "three": "^0.152.2",
+    "typescript": "^5.3.3",
     "web-ifc": "^0.0.50"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "public/*",
+      "*.cjs"
+    ]
   }
 }
