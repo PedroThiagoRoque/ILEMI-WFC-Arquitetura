@@ -14,107 +14,113 @@ const roomColors = {
     6: 0xee2677, //rosa
 };
 
-function createScene() {
+/*function createScene (){
+    function  createScene() {
 
-     /*for (let i = 0; i < grid.length; i++) {
-        for (let j = 0; j < grid[i].length; j++) {
-            if (grid[i][j].length > 1) { // Se a célula tem mais de uma opção, não está colapsada
-                grid[i][j] = [0]; // Colapsar para zero
-            }
+        for (let i = 0; i < grid.length; i++) {
+           for (let j = 0; j < grid[i].length; j++) {
+               if (grid[i][j].length > 1) { // Se a célula tem mais de uma opção, não está colapsada
+                   grid[i][j] = [0]; // Colapsar para zero
+               }
+           }
+       }
+   
+       const scene = new THREE.Scene();
+       const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Obter o container
+        const container = document.getElementById('containerCena');
+        while (container.firstChild) {
+            container.removeChild(container.firstChild); // Limpar cena anterior
         }
-    }
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-     // Obter o container
-     const container = document.getElementById('containerCena');
-     while (container.firstChild) {
-         container.removeChild(container.firstChild); // Limpar cena anterior
-     }
- 
-     const renderer = new THREE.WebGLRenderer();
-     const vhToPixels = (vh) => (window.innerHeight * vh) / 100;
-     renderer.setSize(container.clientWidth - 15, vhToPixels(40));
-     renderer.setClearColor(0xf0f0f0); // Cor cinza claro em hexadecimal
-
-     container.appendChild(renderer.domElement); // Adicionar renderer ao container
-
-    // Adicionando OrbitControls
-    const controls = new OrbitControls(camera, renderer.domElement);
-
-    // Ajustes opcionais nos controles
-    controls.minDistance = 1;
-    controls.maxDistance = 10;
-    controls.enablePan = true;
-    controls.enableDamping = true; // Opcional: para um efeito mais suave
-    controls.dampingFactor = 0.05;
     
-    const size = 5;
-    const divisions = 5;
-    const gridHelper = new THREE.GridHelper(size, divisions);
-    scene.add(gridHelper);
-    
-    const cubeSize = size / divisions;
-    for (let i = 0; i < matriz.length; i++) {
-        for (let j = 0; j < matriz[i].length; j++) {
-            const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-            const cubeMaterial = new THREE.MeshBasicMaterial({ color: roomColors[matriz[i][j]] });
-            const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        const renderer = new THREE.WebGLRenderer();
+        const vhToPixels = (vh) => (window.innerHeight * vh) / 100;
+        renderer.setSize(container.clientWidth - 15, vhToPixels(40));
+        renderer.setClearColor(0xf0f0f0); // Cor cinza claro em hexadecimal
+   
+        container.appendChild(renderer.domElement); // Adicionar renderer ao container
+   
+       // Adicionando OrbitControls
+       const controls = new OrbitControls(camera, renderer.domElement);
+   
+       // Ajustes opcionais nos controles
+       controls.minDistance = 1;
+       controls.maxDistance = 10;
+       controls.enablePan = true;
+       controls.enableDamping = true; // Opcional: para um efeito mais suave
+       controls.dampingFactor = 0.05;
+       
+       const size = 5;
+       const divisions = 5;
+       const gridHelper = new THREE.GridHelper(size, divisions);
+       scene.add(gridHelper);
+       
+       const cubeSize = size / divisions;
+       for (let i = 0; i < matriz.length; i++) {
+           for (let j = 0; j < matriz[i].length; j++) {
+               const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+               const cubeMaterial = new THREE.MeshBasicMaterial({ color: roomColors[matriz[i][j]] });
+               const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+   
+               // Criar a geometria das bordas
+               const edges = new THREE.EdgesGeometry(cubeGeometry);
+               const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
+               cube.add(line); // Adiciona as bordas ao cubo
+   
+               cube.position.set(i - size / 2 + cubeSize / 2, cubeSize / 2, (matriz.length - 1 - j) - size / 2 + cubeSize / 2);
+   
+               scene.add(cube);
+           }
+       }
+       
+       camera.position.z = 10;
+       const animate = function () {
+           requestAnimationFrame(animate);
+           controls.update();
+           renderer.render(scene, camera);
+       };
+       animate(); 
+   
+}*/
 
-            // Criar a geometria das bordas
-            const edges = new THREE.EdgesGeometry(cubeGeometry);
-            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
-            cube.add(line); // Adiciona as bordas ao cubo
-
-            cube.position.set(i - size / 2 + cubeSize / 2, cubeSize / 2, (matriz.length - 1 - j) - size / 2 + cubeSize / 2);
-
-            scene.add(cube);
-        }
-    }
-    
-    camera.position.z = 10;
-    const animate = function () {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-    };
-    animate(); */
-
-    // Get the <div> element where the scene will be displayed
+async function  createScene() {
 
 const container = document.getElementById('containerCena');
 
 // Initialize the basic components needed to use this library
 
 const components = new OBC.Components();
-
 components.scene = new OBC.SimpleScene(components);
 components._renderer = new OBC.SimpleRenderer(components, container);
 components.camera = new OBC.SimpleCamera(components);
 components.raycaster = new OBC.SimpleRaycaster(components);
-
 components.init();
 
-// Add some elements to the scene
-
 const scene = components.scene.get();
+const renderer = components.renderer.get();
 
-const geometry = new THREE.BoxGeometry(3, 3, 3);
-const material = new THREE.MeshStandardMaterial({ color: "red" });
-const cube = new THREE.Mesh(geometry, material);
-cube.position.set(0, 1.5, 0);
-scene.add(cube);
 
-components.meshes.push(cube);
+components.scene.setup();
+renderer.setClearColor(0xf0f0f0); // Cor cinza claro em hexadecimal
+//carrega ifc
+//configura fragment
 
-const directionalLight = new THREE.DirectionalLight();
-directionalLight.position.set(5, 10, 3);
-directionalLight.intensity = 0.5;
-scene.add(directionalLight);
+let fragments = new OBC.FragmentManager(components);
+let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
 
-const ambientLight = new THREE.AmbientLight();
-ambientLight.intensity = 0.5;
-scene.add(ambientLight);
+fragmentIfcLoader.settings.wasm = {
+    path: "https://unpkg.com/web-ifc@0.0.46/",
+    absolute: true
+    }
+
+fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
+fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
+
+const file = await fetch('../../public/Casa 20203.ifc');
+    const data = await file.arrayBuffer();
+    const buffer = new Uint8Array(data);
+    const model = await fragmentIfcLoader.load(buffer, "example");
+    scene.add(model);
 }
 
 document.getElementById('criaCena').addEventListener('click', createScene);
