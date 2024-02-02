@@ -14,8 +14,18 @@ const roomColors = {
     6: 0xee2677, //rosa
 };
 
-/*function createScene (){
-    function  createScene() {
+let scene;
+let camera; 
+let renderer;
+let raycaster;
+
+
+const container = document.getElementById('containerCena');
+let comodos = [];
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+function  createScene() {
 
         for (let i = 0; i < grid.length; i++) {
            for (let j = 0; j < grid[i].length; j++) {
@@ -49,7 +59,16 @@ const roomColors = {
        controls.enablePan = true;
        controls.enableDamping = true; // Opcional: para um efeito mais suave
        controls.dampingFactor = 0.05;
-       
+
+       // Adicionando luz ambiente
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // cor branca, intensidade de 0.5
+        scene.add(ambientLight);
+
+        // Adicionando luz direcional
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // cor branca, intensidade de 1
+        directionalLight.position.set(1, 1, 1); // posição da luz direcional
+        scene.add(directionalLight);
+        
        const size = 5;
        const divisions = 5;
        const gridHelper = new THREE.GridHelper(size, divisions);
@@ -58,7 +77,16 @@ const roomColors = {
        const cubeSize = size / divisions;
        for (let i = 0; i < matriz.length; i++) {
            for (let j = 0; j < matriz[i].length; j++) {
-               const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+
+            // Supondo que matriz[i][j] seja um índice no array comodos
+            const objetoComodo = comodos[matriz[i][j]]; // Clona o objeto para usar múltiplas instâncias // Matriz[i][j] é o valor de 0 a 6 dos cômodos
+
+            // Configurar a posição do objeto comodo conforme necessário
+            objetoComodo.position.set(i - size / 2 + cubeSize / 2, cubeSize / 2, (matriz.length - 1 - j) - size / 2 + cubeSize / 2);
+
+            scene.add(objetoComodo);
+
+               /*const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
                const cubeMaterial = new THREE.MeshBasicMaterial({ color: roomColors[matriz[i][j]] });
                const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
    
@@ -69,7 +97,7 @@ const roomColors = {
    
                cube.position.set(i - size / 2 + cubeSize / 2, cubeSize / 2, (matriz.length - 1 - j) - size / 2 + cubeSize / 2);
    
-               scene.add(cube);
+               scene.add(cube);*/
            }
        }
        
@@ -81,28 +109,71 @@ const roomColors = {
        };
        animate(); 
    
-}*/
+}
 
-async function  createScene() {
+document.getElementById('criaCena').addEventListener('click', createScene);
 
-const container = document.getElementById('containerCena');
 
-// Initialize the basic components needed to use this library
+/////////////////////////////////////////////////////////////////////////////////////
+
+async function carregaModelos(comodos, fragmentIfcLoader){
+    
+    //Banheiro - comodo[0]
+     let file = await fetch('../../public/IFC/Banheiro01.ifc');
+     let data = await file.arrayBuffer();
+     let buffer = new Uint8Array(data);
+     let model = await fragmentIfcLoader.load(buffer, "Banheiro");
+    comodos.push(model);
+
+    //Cozinha -comodo[1]
+     file = await fetch('../../public/IFC/Cozinha01.ifc');
+     data = await file.arrayBuffer();
+     buffer = new Uint8Array(data);
+     model = await fragmentIfcLoader.load(buffer, "Cozinha");
+    comodos.push(model);
+    
+    //Sala - comodo[2]
+     file = await fetch('../../public/IFC/Sala01.ifc');
+     data = await file.arrayBuffer();
+     buffer = new Uint8Array(data);
+     model = await fragmentIfcLoader.load(buffer, "Sala");
+    comodos.push(model);
+
+    //Quarto - comodo[3]
+     file = await fetch('../../public/IFC/Quarto01.ifc');
+     data = await file.arrayBuffer();
+     buffer = new Uint8Array(data);
+     model = await fragmentIfcLoader.load(buffer, "Quarto");
+    comodos.push(model);
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+
+
+async function  Init() {
+
+
+// Inicializa os componentes básico da cena com OpenBIM Components
 
 const components = new OBC.Components();
+
 components.scene = new OBC.SimpleScene(components);
 components._renderer = new OBC.SimpleRenderer(components, container);
 components.camera = new OBC.SimpleCamera(components);
 components.raycaster = new OBC.SimpleRaycaster(components);
+
 components.init();
 
-const scene = components.scene.get();
-const renderer = components.renderer.get();
-
+//const grid = new OBC.SimpleGrid(components);
+scene = components.scene.get();
+camera = components.camera.get();
+renderer = components._renderer.get();
+raycaster = components.raycaster.get();
 
 components.scene.setup();
-renderer.setClearColor(0xf0f0f0); // Cor cinza claro em hexadecimal
-//carrega ifc
+
 //configura fragment
 
 let fragments = new OBC.FragmentManager(components);
@@ -116,11 +187,11 @@ fragmentIfcLoader.settings.wasm = {
 fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
 fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
 
-const file = await fetch('../../public/Casa 20203.ifc');
-    const data = await file.arrayBuffer();
-    const buffer = new Uint8Array(data);
-    const model = await fragmentIfcLoader.load(buffer, "example");
-    scene.add(model);
+/*Carregamento dos modelos*/
+await carregaModelos(comodos, fragmentIfcLoader);
+console.log(comodos);
 }
 
-document.getElementById('criaCena').addEventListener('click', createScene);
+
+//Cria a cena e carrega os modelos para o array Cômodos
+Init();
