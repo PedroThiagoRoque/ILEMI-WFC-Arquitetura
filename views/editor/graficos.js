@@ -74,32 +74,43 @@ function  createScene() {
        const gridHelper = new THREE.GridHelper(size, divisions);
        scene.add(gridHelper);
        
-       const cubeSize = size / divisions;
-       for (let i = 0; i < matriz.length; i++) {
-           for (let j = 0; j < matriz[i].length; j++) {
+       const comodosBounds = []; // Armazena os limites de cada comodo
 
-            // Supondo que matriz[i][j] seja um índice no array comodos
-            const objetoComodo = comodos[matriz[i][j]]; // Clona o objeto para usar múltiplas instâncias // Matriz[i][j] é o valor de 0 a 6 dos cômodos
+        let offsetX = 0; // Deslocamento inicial no eixo X
+        let offsetZ = 0; // Deslocamento inicial no eixo Z para a primeira linha
+        let maxDepthCurrentRow = 0;
 
-            // Configurar a posição do objeto comodo conforme necessário
-            objetoComodo.position.set(i - size / 2 + cubeSize / 2, cubeSize / 2, (matriz.length - 1 - j) - size / 2 + cubeSize / 2);
+        for (let i = 0; i < matriz.length; i++) {
+            for (let j = 0; j < matriz[i].length; j++) {
+                const comodo = comodos[matriz[i][j]]; // Clonando o objeto para uso
+                console.log(comodo.boundingBox); // Calcular limites
+                const bounds = comodo.boundingBox;
 
-            scene.add(objetoComodo);
+                // Obter largura e profundidade do comodo
+                const width = bounds.max.x - bounds.min.x;
+                const depth = bounds.max.z - bounds.min.z;
 
-               /*const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-               const cubeMaterial = new THREE.MeshBasicMaterial({ color: roomColors[matriz[i][j]] });
-               const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-   
-               // Criar a geometria das bordas
-               const edges = new THREE.EdgesGeometry(cubeGeometry);
-               const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
-               cube.add(line); // Adiciona as bordas ao cubo
-   
-               cube.position.set(i - size / 2 + cubeSize / 2, cubeSize / 2, (matriz.length - 1 - j) - size / 2 + cubeSize / 2);
-   
-               scene.add(cube);*/
-           }
-       }
+                // Ajustar posição baseado nos limites calculados
+                const posX = offsetX + (width / 2);
+                const posZ = offsetZ + (depth / 2);
+
+                comodo.position.set(posX, 0, posZ); // Ajusta a altura (y) conforme necessário
+                scene.add(comodo);
+
+                // Atualizar offsetX para o próximo comodo na mesma linha
+                offsetX += width;
+                maxDepthCurrentRow = Math.max(maxDepthCurrentRow, depth);
+
+                // Salvar limites para referência futura
+                comodosBounds.push(bounds);
+            }
+            
+            // Para nova linha, resetar offsetX e ajustar offsetZ baseado no comodo mais profundo da linha anterior
+            offsetX = 0;
+            offsetZ += maxDepthCurrentRow;
+            maxDepthCurrentRow = 0; // Preparar para a próxima linha
+        }
+
        
        camera.position.z = 10;
        const animate = function () {
