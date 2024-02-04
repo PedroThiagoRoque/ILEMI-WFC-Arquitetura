@@ -23,6 +23,45 @@ let raycaster;
 const container = document.getElementById('containerCena');
 let comodos = [];
 
+// Inicializa os componentes básico da cena com OpenBIM Components
+    const components = new OBC.Components();
+        
+    components.scene = new OBC.SimpleScene(components);
+    components._renderer = new OBC.SimpleRenderer(components, container);
+    components.camera = new OBC.SimpleCamera(components);
+    components.raycaster = new OBC.SimpleRaycaster(components);
+    
+    components.init();
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+async function  Init() {
+    //const grid = new OBC.SimpleGrid(components);
+    scene = components.scene.get();
+    camera = components.camera.get();
+    renderer = components._renderer.get();
+    raycaster = components.raycaster.get();
+    
+    components.scene.setup();
+    
+    //configura fragment
+    
+    let fragments = new OBC.FragmentManager(components);
+    let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
+    
+    fragmentIfcLoader.settings.wasm = {
+        path: "https://unpkg.com/web-ifc@0.0.46/",
+        absolute: true
+        }
+    
+    fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
+    fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
+    
+    /*Carregamento dos modelos*/
+    await carregaModelos(comodos, fragmentIfcLoader);
+    console.log(comodos);
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 function  createScene() {
@@ -73,42 +112,41 @@ function  createScene() {
        const divisions = 5;
        const gridHelper = new THREE.GridHelper(size, divisions);
        scene.add(gridHelper);
-       
-       const comodosBounds = []; // Armazena os limites de cada comodo
 
-        let offsetX = 0; // Deslocamento inicial no eixo X
-        let offsetZ = 0; // Deslocamento inicial no eixo Z para a primeira linha
-        let maxDepthCurrentRow = 0;
+        let currentX = 0;
+        let currentZ = 0;
+        let nextRowZ = 0;
 
         for (let i = 0; i < matriz.length; i++) {
+            currentX = 0; // Reiniciar a posição X para cada nova linha
             for (let j = 0; j < matriz[i].length; j++) {
-                const comodo = comodos[matriz[i][j]]; // Clonando o objeto para uso
-                console.log(comodo.boundingBox); // Calcular limites
+                const comodo = comodos[matriz[i][j]]; // Clonar o objeto para uso
                 const bounds = comodo.boundingBox;
-
-                // Obter largura e profundidade do comodo
+        
+                // Calcular largura e profundidade do comodo baseado na bounding box
                 const width = bounds.max.x - bounds.min.x;
                 const depth = bounds.max.z - bounds.min.z;
+        
+                // Posicionar o comodo
+                comodo.position.set(currentX + width / 2, 0, currentZ + depth / 2);
+                //gambiarra braba
+                const objectJson = comodo.toJSON();
+                const newObject = new THREE.ObjectLoader().parse(objectJson);
+                scene.add(newObject); //adiciona o comodo na cena
 
-                // Ajustar posição baseado nos limites calculados
-                const posX = offsetX + (width / 2);
-                const posZ = offsetZ + (depth / 2);
+                const boxHelper = new THREE.BoxHelper(comodo, 0x00ff00); // Usando cor verde para a bounding box
+                scene.add(boxHelper);
 
-                comodo.position.set(posX, 0, posZ); // Ajusta a altura (y) conforme necessário
-                scene.add(comodo);
-
-                // Atualizar offsetX para o próximo comodo na mesma linha
-                offsetX += width;
-                maxDepthCurrentRow = Math.max(maxDepthCurrentRow, depth);
-
-                // Salvar limites para referência futura
-                comodosBounds.push(bounds);
+                // Atualizar a posição X para o próximo comodo na linha
+                currentX += width;
+        
+                // Atualizar nextRowZ com a profundidade do comodo se for maior que o valor atual
+                nextRowZ = Math.max(nextRowZ, depth);
             }
-            
-            // Para nova linha, resetar offsetX e ajustar offsetZ baseado no comodo mais profundo da linha anterior
-            offsetX = 0;
-            offsetZ += maxDepthCurrentRow;
-            maxDepthCurrentRow = 0; // Preparar para a próxima linha
+        
+            // Ao final de cada linha, atualizar currentZ para a próxima linha e resetar nextRowZ
+            currentZ += nextRowZ;
+            nextRowZ = 0;
         }
 
        
@@ -163,45 +201,7 @@ async function carregaModelos(comodos, fragmentIfcLoader){
 
 
 
-async function  Init() {
 
-
-// Inicializa os componentes básico da cena com OpenBIM Components
-
-const components = new OBC.Components();
-
-components.scene = new OBC.SimpleScene(components);
-components._renderer = new OBC.SimpleRenderer(components, container);
-components.camera = new OBC.SimpleCamera(components);
-components.raycaster = new OBC.SimpleRaycaster(components);
-
-components.init();
-
-//const grid = new OBC.SimpleGrid(components);
-scene = components.scene.get();
-camera = components.camera.get();
-renderer = components._renderer.get();
-raycaster = components.raycaster.get();
-
-components.scene.setup();
-
-//configura fragment
-
-let fragments = new OBC.FragmentManager(components);
-let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
-
-fragmentIfcLoader.settings.wasm = {
-    path: "https://unpkg.com/web-ifc@0.0.46/",
-    absolute: true
-    }
-
-fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
-fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
-
-/*Carregamento dos modelos*/
-await carregaModelos(comodos, fragmentIfcLoader);
-console.log(comodos);
-}
 
 
 //Cria a cena e carrega os modelos para o array Cômodos
