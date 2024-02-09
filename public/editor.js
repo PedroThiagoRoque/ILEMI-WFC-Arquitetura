@@ -41,23 +41,19 @@ function createTable() {
 //////////////////////////////////////////////////////////////////////////////////
 
 const rules = {
-  0: [0,1, 2, 3,4,5,6], // 0 pode estar próximo a 1, 2 ou 3
-  1: [0,1, 2, 3,4,5,6],    // 1 pode estar próximo a 0 ou 4
-  2: [0,1, 2, 3,4,5,6],    // 2 pode estar próximo a 3 ou 5
-  3: [0,1, 2, 3,4,5,6],    // 3 pode estar próximo a 2 ou 6
-  4: [0,1, 2, 3,4,5,6],    // 4 pode estar próximo a 1 ou 5
-  5: [0,1, 2, 3,4,5,6], // 5 pode estar próximo a 2, 4 ou 6
-  6: [0,1, 2, 3,4,5,6],    // 6 pode estar próximo a 3 ou 5
+  0: [0,1, 2, 3,4], // 0 pode estar próximo a 1, 2 ou 3
+  1: [0,1, 2, 3,4],    // 1 pode estar próximo a 0 ou 4
+  2: [0,1, 2, 3,4],    // 2 pode estar próximo a 3 ou 5
+  3: [0,1, 2, 3,4],    // 3 pode estar próximo a 2 ou 6
+  4: [0,1, 2, 3,4]    // 4 pode estar próximo a 1 ou 5
 };
 
 const comodos = {
-  0: "Vazio",
-  1: "Quarto",
-  2: "Sala",
-  3: "Banheiro",
-  4: "Cozinha",
-  5: "Serviço",
-  6: "Corredor"
+  0: "Piso",
+  1: "Parede",
+  2: "Canto",
+  3: "Porta",
+  4: "Janela"
 };
 
 //////////////////////////////////////////////////////////////////////////////////

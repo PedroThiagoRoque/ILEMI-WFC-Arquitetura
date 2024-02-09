@@ -21,9 +21,11 @@ let raycaster;
 
 
 const container = document.getElementById('containerCena');
-let comodos = [];
+let blocos = [];
+let objetos = [];
 
 // Inicializa os componentes básico da cena com OpenBIM Components
+
     const components = new OBC.Components();
         
     components.scene = new OBC.SimpleScene(components);
@@ -36,10 +38,11 @@ let comodos = [];
 /////////////////////////////////////////////////////////////////////////////////////
 
 async function  Init() {
+
     //const grid = new OBC.SimpleGrid(components);
     scene = components.scene.get();
     camera = components.camera.get();
-    renderer = components._renderer.get();
+    //renderer = components._renderer.get();
     raycaster = components.raycaster.get();
     
     components.scene.setup();
@@ -58,23 +61,23 @@ async function  Init() {
     fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
     
     /*Carregamento dos modelos*/
-    await carregaModelos(comodos, fragmentIfcLoader);
-    console.log(comodos);
+    await carregaModelos(blocos, fragmentIfcLoader);
+    console.log(blocos);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////
-
+renderer = new THREE.WebGLRenderer();
 function  createScene() {
 
-        for (let i = 0; i < grid.length; i++) {
-           for (let j = 0; j < grid[i].length; j++) {
-               if (grid[i][j].length > 1) { // Se a célula tem mais de uma opção, não está colapsada
-                   grid[i][j] = [0]; // Colapsar para zero
+        for (let i = 0; i < matriz.length; i++) {
+           for (let j = 0; j < matriz[i].length; j++) {
+               if (matriz[i][j].length > 1) { // Se a célula tem mais de uma opção, não está colapsada
+                   matriz[i][j] = [0]; // Colapsar para zero
                }
            }
        }
    
-       const scene = new THREE.Scene();
+       scene = new THREE.Scene();
        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         // Obter o container
         const container = document.getElementById('containerCena');
@@ -82,9 +85,9 @@ function  createScene() {
             container.removeChild(container.firstChild); // Limpar cena anterior
         }
     
-        const renderer = new THREE.WebGLRenderer();
+        
         const vhToPixels = (vh) => (window.innerHeight * vh) / 100;
-        renderer.setSize(container.clientWidth - 15, vhToPixels(40));
+        renderer.setSize(400,400);
         renderer.setClearColor(0xf0f0f0); // Cor cinza claro em hexadecimal
    
         container.appendChild(renderer.domElement); // Adicionar renderer ao container
@@ -113,34 +116,43 @@ function  createScene() {
        const gridHelper = new THREE.GridHelper(size, divisions);
        scene.add(gridHelper);
 
-        let currentX = 0;
+       let currentX = 0;
         let currentZ = 0;
         let nextRowZ = 0;
+        objetos = [];
 
         for (let i = 0; i < matriz.length; i++) {
             currentX = 0; // Reiniciar a posição X para cada nova linha
             for (let j = 0; j < matriz[i].length; j++) {
-                const comodo = comodos[matriz[i][j]]; // Clonar o objeto para uso
-                const bounds = comodo.boundingBox;
+
+                const bloco = blocos[matriz[i][j]]; // Clonar o objeto para uso
+                const bounds = bloco.boundingBox;
         
-                // Calcular largura e profundidade do comodo baseado na bounding box
+                // Calcular largura e profundidade do bloco baseado na bounding box
                 const width = bounds.max.x - bounds.min.x;
                 const depth = bounds.max.z - bounds.min.z;
-        
-                // Posicionar o comodo
-                comodo.position.set(currentX + width / 2, 0, currentZ + depth / 2);
-                //gambiarra braba
-                const objectJson = comodo.toJSON();
+                
+                const objectJson = bloco.toJSON();
                 const newObject = new THREE.ObjectLoader().parse(objectJson);
-                scene.add(newObject); //adiciona o comodo na cena
+                newObject.position.set(currentX + width / 2, 0, currentZ + depth / 2);
 
-                const boxHelper = new THREE.BoxHelper(comodo, 0x00ff00); // Usando cor verde para a bounding box
-                scene.add(boxHelper);
+                // Posicionar o bloco
+                //bloco.position.set(currentX + width / 2, 0, currentZ + depth / 2);
+                //gambiarra braba
+                
+                //const objectJson = bloco.toJSON();
+                //const newObject = new THREE.ObjectLoader().parse(objectJson);
 
-                // Atualizar a posição X para o próximo comodo na linha
+                objetos.push(newObject);
+                scene.add(newObject); //adiciona o bloco na cena
+
+                const boxHelper = new THREE.BoxHelper(bloco, 0x00ff00); // Usando cor verde para a bounding box
+                //scene.add(boxHelper);
+                
+                // Atualizar a posição X para o próximo bloco na linha
                 currentX += width;
         
-                // Atualizar nextRowZ com a profundidade do comodo se for maior que o valor atual
+                // Atualizar nextRowZ com a profundidade do bloco se for maior que o valor atual
                 nextRowZ = Math.max(nextRowZ, depth);
             }
         
@@ -148,8 +160,16 @@ function  createScene() {
             currentZ += nextRowZ;
             nextRowZ = 0;
         }
+        console.log("objetos: ", objetos);
+        
+        objetos.forEach((objeto) => {
+            objeto.children.forEach((child) => { 
+                child.computeBoundingBox();
+                child.boundingBox.applyMatrix4(objeto.matrixWorld);
+                })
 
-       
+            });
+
        camera.position.z = 10;
        const animate = function () {
            requestAnimationFrame(animate);
@@ -165,44 +185,72 @@ document.getElementById('criaCena').addEventListener('click', createScene);
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-async function carregaModelos(comodos, fragmentIfcLoader){
-    
-    //Banheiro - comodo[0]
-     let file = await fetch('../../public/IFC/Banheiro01.ifc');
-     let data = await file.arrayBuffer();
-     let buffer = new Uint8Array(data);
-     let model = await fragmentIfcLoader.load(buffer, "Banheiro");
-    comodos.push(model);
+let previousSelection;
+const greenMaterial = new THREE.MeshStandardMaterial({color: '#BCF124'});
+let x=0;
+//const raycaster2 = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
-    //Cozinha -comodo[1]
-     file = await fetch('../../public/IFC/Cozinha01.ifc');
-     data = await file.arrayBuffer();
-     buffer = new Uint8Array(data);
-     model = await fragmentIfcLoader.load(buffer, "Cozinha");
-    comodos.push(model);
-    
-    //Sala - comodo[2]
-     file = await fetch('../../public/IFC/Sala01.ifc');
-     data = await file.arrayBuffer();
-     buffer = new Uint8Array(data);
-     model = await fragmentIfcLoader.load(buffer, "Sala");
-    comodos.push(model);
+container.addEventListener('mousemove', (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
 
-    //Quarto - comodo[3]
-     file = await fetch('../../public/IFC/Quarto01.ifc');
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const result = raycaster.intersectObjects(objetos) //components.raycaster.castRay(objetos);
+
+    if (!result[0]) {
+        console.log("nada selecionado");
+        return;
+    }
+
+    console.log("selecionado " + x++ + " :", result[0].object);
+});
+
+/////////////////////////////////////////////////////////////////////////////////////
+async function carregaModelos(blocos, fragmentIfcLoader){
+
+    //Base - bloco[0]
+    let file = await fetch('../../public/IFC/Base.ifc');
+    let data = await file.arrayBuffer();
+    let buffer = new Uint8Array(data);
+    let model = await fragmentIfcLoader.load(buffer, "Base");
+
+   blocos.push(model);
+
+    //Parede - bloco[1]
+      file = await fetch('../../public/IFC/Parede.ifc');
+      data = await file.arrayBuffer();
+      buffer = new Uint8Array(data);
+      model = await fragmentIfcLoader.load(buffer, "Parede");
+    blocos.push(model);
+
+    //Canto -bloco[2]
+    file = await fetch('../../public/IFC/Canto.ifc');
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
-     model = await fragmentIfcLoader.load(buffer, "Quarto");
-    comodos.push(model);
+     model = await fragmentIfcLoader.load(buffer, "Canto");
+    blocos.push(model);
+    
+    //Porta - bloco[3]
+     file = await fetch('../../public/IFC/Porta.ifc');
+     data = await file.arrayBuffer();
+     buffer = new Uint8Array(data);
+     model = await fragmentIfcLoader.load(buffer, "Porta");
+    blocos.push(model);
+
+    //Janela - bloco[4]
+     file = await fetch('../../public/IFC/Janela.ifc');
+     data = await file.arrayBuffer();
+     buffer = new Uint8Array(data);
+     model = await fragmentIfcLoader.load(buffer, "Janela");
+    blocos.push(model);
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 //Cria a cena e carrega os modelos para o array Cômodos
 Init();
