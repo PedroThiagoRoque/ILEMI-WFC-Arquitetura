@@ -9,6 +9,7 @@ let matriz = window.grid;
 //0. Importando modelos com OpenBim Components
 let blocos = [];
 let objetos = [];
+const containerCena = document.getElementById('containerCena');
 
 async function carregaModelos(blocos, fragmentIfcLoader){
 
@@ -50,12 +51,16 @@ async function carregaModelos(blocos, fragmentIfcLoader){
 
 }
 
+const components = new OBC.Components();
+
+components.scene = new OBC.SimpleScene(components);
+components.renderer = new OBC.SimpleRenderer(components, containerCena);
+components.camera = new OBC.SimpleCamera(components);
+components.raycaster = new OBC.SimpleRaycaster(components);
+
+components.init();
+
 async function  Init() {
-    const components = new OBC.Components();
-    components._renderer = new OBC.SimpleRenderer(components, containerCena);
-
-    components.init();
-
     //configura fragment
     
     let fragments = new OBC.FragmentManager(components);
@@ -76,60 +81,37 @@ async function  Init() {
 
 
 // 1. Inicializações básicas
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, 400 / 400, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(400, 400); // Definir tamanho do renderizador para 400x400 pixels
+const scene = components.scene.get();
+let camera = components.camera.get(); 
+let renderer = components.renderer.get();
 
-// Selecionar o elemento div com id 'containerCena' e anexar o renderer a ele
-const containerCena = document.getElementById('containerCena');
-containerCena.appendChild(renderer.domElement);
+components.scene.setup();
 
+renderer.setSize(400,400);
 // Adicionar o estilo para alinhar o canvas do renderizador
 renderer.domElement.style.display = 'block';
 renderer.domElement.style.margin = 'auto';
-renderer.setClearColor(0xf0f0f0); // Cor cinza claro em hexadecimal
-renderer.shadowMap.enabled = true; // Habilita o cálculo de sombras
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Tipo de sombreamento que pode ser mais suave
-
-// Adicionando luz ambiente
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // cor branca, intensidade de 0.5
-scene.add(ambientLight);
-
-// Adicionando luz direcional
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // cor branca, intensidade de 1
-directionalLight.position.set(5, 10, 7.5); // A posição depende do seu caso de uso
-// posição da luz direcional
-directionalLight.castShadow = true; // Habilita o lançamento de sombras pela luz
-
-// Configuração adicional para refinar as sombras
-directionalLight.shadow.mapSize.width = 128; // Resolução da textura de sombra
-directionalLight.shadow.mapSize.height = 128;
-directionalLight.shadow.camera.near = 0.5; // Câmera de sombra próxima
-directionalLight.shadow.camera.far = 50; // Câmera de sombra distante
-
-scene.add(directionalLight);
 
 // Ajustar a câmera
 camera.aspect = 1; // Manter a proporção quadrada
 camera.updateProjectionMatrix(); // Atualizar a matriz de projeção da câmera
 camera.position.z = 5; // Posicionar a câmera
 
-//Inicia a importação
+//Inicia a importação de blocos
 Init();
 
 // 2. Adicionando Controle Orbital
-const controls = new OrbitControls(camera, renderer.domElement);
+/*const controls = new OrbitControls(camera, renderer.domElement);
    
 // Ajustes opcionais nos controles
 controls.minDistance = 1;
 controls.maxDistance = 10;
 controls.enablePan = true;
 controls.enableDamping = true; // Opcional: para um efeito mais suave
-controls.dampingFactor = 0.05;
+controls.dampingFactor = 0.05;*/
 
 // 3. Criar e adicionar cubos à cena
-/*
+
 const cubeGeometry = new THREE.BoxGeometry();
 const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 }); //Phong aceita sombras
 const cubes = [];
@@ -139,13 +121,14 @@ for (let i = 0; i < 3; i++) {
     cube.position.x = i * 2 - 2; // Posiciona os cubos lado a lado
     cube.castShadow = true; // O cubo lança sombras
     cube.receiveShadow = true; // O cubo recebe sombras
+    cube.updateMatrixWorld(true);
     scene.add(cube);
     cubes.push(cube);
 }
-*/
+
 
 // 4. Adicionar Raycaster e Mouse - Clicando objetos na cena
-const raycaster = new THREE.Raycaster();
+const raycaster = components.raycaster.get();
 const mouse = new THREE.Vector2();
 
 // Função para converter coordenadas do clique do mouse para o espaço de coordenadas normalizado do Three.js (-1 a 1)
@@ -173,18 +156,16 @@ renderer.domElement.addEventListener('click', (event) => {
     const intersects = raycaster.intersectObjects(scene.children);
 
     if (intersects.length > 0) {
-        console.log('Clicado cubo', intersects);
+        console.log('Clicado cubo');
         // Outras ações baseadas na interseção podem ser adicionadas aqui
     }
 });
 
-// 6. Função de animação para girar os cubos
+// 6. Função de animação
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
     renderer.render(scene, camera);
 }
 
 // 7. Posicionar a câmera e iniciar a animação
-camera.position.z = 5;
 animate();
