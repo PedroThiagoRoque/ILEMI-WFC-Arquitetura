@@ -3,7 +3,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
 export default {
-	input: 'views/editor/graficos.js',
+	input: 'views/editor/graficos2.js',
 	output: {
 		file: 'public/bundle.js',
 		format: 'cjs'

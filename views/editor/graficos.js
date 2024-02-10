@@ -134,7 +134,15 @@ function  createScene() {
                 
                 const objectJson = bloco.toJSON();
                 const newObject = new THREE.ObjectLoader().parse(objectJson);
-                newObject.position.set(currentX + width / 2, 0, currentZ + depth / 2);
+                //newObject.position.set(currentX + width / 2, 0, currentZ + depth / 2);
+
+                newObject.children.forEach((child) =>{
+                    child.position.set(currentX + width / 2, 0, currentZ + depth / 2);
+                    child.parent.position.set(currentX + width / 2, 0, currentZ + depth / 2);
+                    child.parent.updateMatrixWorld(true); // Atualiza a matriz do pai
+                    child.updateWorldMatrix(true, false); // Atualiza a matriz do mundo do filho
+
+                })
 
                 // Posicionar o bloco
                 //bloco.position.set(currentX + width / 2, 0, currentZ + depth / 2);
