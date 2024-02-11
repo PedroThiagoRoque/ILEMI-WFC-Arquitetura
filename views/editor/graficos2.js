@@ -18,7 +18,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     let data = await file.arrayBuffer();
     let buffer = new Uint8Array(data);
     let model = await fragmentIfcLoader.load(buffer, "Base");
-
+   
     blocos.push(model);
 
     //Parede - bloco[1]
@@ -26,6 +26,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
       data = await file.arrayBuffer();
       buffer = new Uint8Array(data);
       model = await fragmentIfcLoader.load(buffer, "Parede");
+    
     blocos.push(model);
 
     //Canto -bloco[2]
@@ -33,6 +34,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
      model = await fragmentIfcLoader.load(buffer, "Canto");
+     
     blocos.push(model);
     
     //Porta - bloco[3]
@@ -40,6 +42,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
      model = await fragmentIfcLoader.load(buffer, "Porta");
+     
     blocos.push(model);
 
     //Janela - bloco[4]
@@ -47,6 +50,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
      model = await fragmentIfcLoader.load(buffer, "Janela");
+     console.log("Janela:", model)
     blocos.push(model);
 
 }
@@ -76,7 +80,7 @@ async function  Init() {
     
     /*Carregamento dos modelos*/
     await carregaModelos(blocos, fragmentIfcLoader);
-    console.log(blocos);
+    console.log("blocos", blocos);
 }
 
 
@@ -100,31 +104,28 @@ camera.position.z = 5; // Posicionar a câmera
 //Inicia a importação de blocos
 Init();
 
-// 2. Adicionando Controle Orbital
-/*const controls = new OrbitControls(camera, renderer.domElement);
-   
-// Ajustes opcionais nos controles
-controls.minDistance = 1;
-controls.maxDistance = 10;
-controls.enablePan = true;
-controls.enableDamping = true; // Opcional: para um efeito mais suave
-controls.dampingFactor = 0.05;*/
-
 // 3. Criar e adicionar cubos à cena
-
+function  criaLayout() {
 const cubeGeometry = new THREE.BoxGeometry();
 const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 }); //Phong aceita sombras
 const cubes = [];
 
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 5; i++) {
+    /*
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.position.x = i * 2 - 2; // Posiciona os cubos lado a lado
     cube.castShadow = true; // O cubo lança sombras
     cube.receiveShadow = true; // O cubo recebe sombras
     cube.updateMatrixWorld(true);
-    scene.add(cube);
-    cubes.push(cube);
+    scene.add(cube); 
+    */
+
+    blocos[i].position.x = i * 2 - 2;
+    scene.add(blocos[i]);
+    
+    }
 }
+document.getElementById('criaCena').addEventListener('click', criaLayout);
 
 
 // 4. Adicionar Raycaster e Mouse - Clicando objetos na cena
@@ -156,7 +157,7 @@ renderer.domElement.addEventListener('click', (event) => {
     const intersects = raycaster.intersectObjects(scene.children);
 
     if (intersects.length > 0) {
-        console.log('Clicado cubo');
+        console.log('Clicado cubo', intersects[0]);
         // Outras ações baseadas na interseção podem ser adicionadas aqui
     }
 });
