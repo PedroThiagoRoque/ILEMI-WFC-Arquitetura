@@ -50,7 +50,6 @@ async function carregaModelos(blocos, fragmentIfcLoader){
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
      model = await fragmentIfcLoader.load(buffer, "Janela");
-     console.log("Janela:", model)
     blocos.push(model);
 
 }
@@ -104,25 +103,64 @@ camera.position.z = 5; // Posicionar a câmera
 //Inicia a importação de blocos
 Init();
 
-// 3. Criar e adicionar cubos à cena
-function  criaLayout() {
-const cubeGeometry = new THREE.BoxGeometry();
-const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 }); //Phong aceita sombras
-const cubes = [];
 
-for (let i = 0; i < 5; i++) {
-    /*
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    cube.position.x = i * 2 - 2; // Posiciona os cubos lado a lado
-    cube.castShadow = true; // O cubo lança sombras
-    cube.receiveShadow = true; // O cubo recebe sombras
-    cube.updateMatrixWorld(true);
-    scene.add(cube); 
-    */
-
-    blocos[i].position.x = i * 2 - 2;
-    scene.add(blocos[i]);
+function cloneObjeto(objeto) {
+    //Gambiarra braba para funcionar o clone de objetos através da serealização do objeto BIM
+    //E centralizar os eixos dos objetos
     
+    // Calcula o centro da bounding box
+    const boundingBox = new THREE.Box3().setFromObject(objeto);
+    const centro = new THREE.Vector3();
+    boundingBox.getCenter(centro);
+
+    // Cria um objeto pivô e adiciona à cena
+    const pivot = new THREE.Object3D();
+    scene.add(pivot);
+
+    // Ajusta a posição do objeto para que o centro esteja na origem do pivô
+    objeto.position.sub(centro);
+
+    // Adiciona o objeto ao pivô
+    pivot.add(objeto);
+    pivot.rotation.y += Math.PI / 2; // 90 graus em radianos
+
+
+    //serialização
+    const objectJson = pivot.toJSON();
+    const newObject = new THREE.ObjectLoader().parse(objectJson);
+    return newObject;
+}
+
+
+function criaLayout() {
+    objetos = []; // Reinicia o vetor de objetos para garantir que está vazio antes de começar
+
+    //Zera posições não definidas
+    for (let i = 0; i < matriz.length; i++) {
+        for (let j = 0; j < matriz[i].length; j++) {
+            if (matriz[i][j].length > 1) { // Se a célula tem mais de uma opção, não está colapsada
+                matriz[i][j] = [0]; // Colapsar para zero
+            }
+        }
+    }
+
+    for (let i = 0; i < matriz.length; i++) {
+        for (let j = 0; j < matriz[i].length; j++) {
+            // Obter o tipo de bloco a partir da matriz
+            const blocoTipo = matriz[i][j];
+            
+            //ALTERAR ORDEM POSITION.SET
+            // Clonar o objeto bloco correspondente
+            const blocoClone = cloneObjeto(blocos[matriz[i][j]]);
+            console.log("clone: ", blocoClone);
+            // Posiciona o bloco clone de acordo com sua posição na matriz
+            
+            blocoClone.position.set(j * 2 - (matriz[i].length - 1), 0, i * 2 - (matriz.length - 1));
+
+            // Adiciona o bloco clonado ao vetor de objetos e à cena
+            objetos.push(blocoClone);
+            scene.add(blocoClone);
+        }
     }
 }
 document.getElementById('criaCena').addEventListener('click', criaLayout);
@@ -157,8 +195,9 @@ renderer.domElement.addEventListener('click', (event) => {
     const intersects = raycaster.intersectObjects(scene.children);
 
     if (intersects.length > 0) {
-        console.log('Clicado cubo', intersects[0]);
-        // Outras ações baseadas na interseção podem ser adicionadas aqui
+        console.log('Clicado bloco', intersects[0]);
+        intersects[0].object.rotation.y += Math.PI / 2; // Math.PI / 2 radianos é igual a 90 graus
+
     }
 });
 
