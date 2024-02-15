@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import * as SceneUtils from 'three/addons/utils/SceneUtils.js';
 import * as OBC from '../../public/openbim-components.js'
 
 //Importando a matriz de representação do layout
@@ -186,17 +184,7 @@ camera.position.z = 5; // Posicionar a câmera
 //Inicia a importação de blocos
 Init();
 
-
-function cloneObjeto(objeto) {
-    //Gambiarra braba para funcionar o clone de objetos através da serealização do objeto BIM
-
-    //serialização
-    const objectJson = objeto.toJSON(); //pivot.toJSON();
-    const newObject = new THREE.ObjectLoader().parse(objectJson);
-    return newObject;
-}
-
-
+////////////////////////////////////////////////////////////////////////////////////
 function criaLayout() {
     matriz = window.grid;
     console.log("objs:", objetos)
@@ -232,13 +220,18 @@ function criaLayout() {
 
             // Posiciona o bloco clone de acordo com sua posição na matriz
             
-            blocoClone.position.set(j * 2 - (matriz[i].length - 1), 0, i * 2 - (matriz.length - 1));
+            //blocoClone.position.set(j * 2 - (matriz[i].length - 1), 0, i * 2 - (matriz.length - 1));
+            blocoClone.position.set(j - Math.floor(matriz[i].length / 2), 0, i - Math.floor(matriz.length / 2));
 
             // Adiciona o bloco clonado ao vetor de objetos e à cena
             objetos.push(blocoClone);
             scene.add(blocoClone);
+
+        
         }
     }
+    
+        
 }
 document.getElementById('criaCena').addEventListener('click', criaLayout);
 
@@ -281,6 +274,29 @@ renderer.domElement.addEventListener('click', (event) => {
         }
             
 });
+
+////////////////////////////////////////////////////////////////////////////////////
+//Highlight no hover do mouse
+
+const greenMaterial = new THREE.MeshStandardMaterial({color: '#BCF124'});
+let materialBloco;
+
+let previousSelection;
+window.onmousemove = () => {
+const result = components.raycaster.castRay(objetos);
+
+if (previousSelection) {
+materialBloco = result.object.material;
+previousSelection.material = materialBloco;
+}
+if (!result) {
+return;
+}
+result.object.material = greenMaterial;
+previousSelection = result.object;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 
 // 6. Função de animação
 function animate() {

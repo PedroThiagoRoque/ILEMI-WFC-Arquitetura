@@ -1,5 +1,7 @@
+// O mundo é formado não apenas pelo que já existe, mas pelo que pode efetivamente existir. -Milton Santos
 
-let grid = new Array(5).fill(null).map(() => new Array(5).fill([0, 1, 2, 3, 4, 5, 6]));
+const tamanho = 5;
+let grid = new Array(tamanho).fill(null).map(() => new Array(tamanho).fill([0, 1, 2, 3, 4]));
 window.grid = grid;
 
 
@@ -10,9 +12,9 @@ function createTable() {
   var table = document.createElement('table');
   table.className = 'table-container';
 
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < tamanho; i++) {
     var tr = document.createElement('tr');
-    for (var j = 0; j < 5; j++) {
+    for (var j = 0; j < tamanho; j++) {
       var td = document.createElement('td');
       var button = document.createElement('button');
       button.type = 'button';
@@ -43,7 +45,7 @@ function createTable() {
 
 function resetGrid() {
   // Recria o grid com os valores iniciais
-  grid = new Array(5).fill(null).map(() => new Array(5).fill([0, 1, 2, 3, 4, 5, 6]));
+  grid = new Array(tamanho).fill(null).map(() => new Array(tamanho).fill([0, 1, 2, 3, 4, 5, 6]));
   window.grid = grid;
   createTable();
 }
@@ -52,12 +54,11 @@ document.getElementById('generate-table').addEventListener('click', resetGrid);
 
 //////////////////////////////////////////////////////////////////////////////////
 const rules = {
-  0: [0,1, 2, 3,4,5], // 0 pode estar próximo a 1, 2 ou 3
-  1: [0,1, 2, 3,4,5],    // 1 pode estar próximo a 0 ou 4
-  2: [0,1, 2, 3,4,5],    // 2 pode estar próximo a 3 ou 5
-  3: [0,1, 2, 3,4,5],    // 3 pode estar próximo a 2 ou 6
-  4: [0,1, 2, 3,4,5],
-  5: [0,1, 2, 3,4,5]    // 4 pode estar próximo a 1 ou 5
+  0: [0,1, 2, 3,4], // Piso
+  1: [0,1, 2, 3,4],    // Parede
+  2: [0,1, 2, 3,4],    // Canto
+  3: [0,1, 2, 3,4],    // Porta
+  4: [0,1, 2, 3,4],   // Janela
 };
 
 const comodos = {
@@ -65,8 +66,7 @@ const comodos = {
   1: "Parede",
   2: "Canto",
   3: "Porta",
-  4: "Janela",
-  5: "Canto 2"
+  4: "Janela"
 };
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ function getValidOptionsFromAdjacent(i, j) {
     const newI = i + di;
     const newJ = j + dj;
 
-    if (newI >= 0 && newI < 5 && newJ >= 0 && newJ < 5) {
+    if (newI >= 0 && newI < tamanho && newJ >= 0 && newJ < tamanho) {
       const adjacentCell = grid[newI][newJ];
       if (adjacentCell.length === 1) { // Se a célula adjacente já estiver colapsada
         const adjacentValue = adjacentCell[0];
@@ -146,7 +146,7 @@ function updateGridBasedOnRules(i, j, selectedValue) {
       const newJ = j + dj;
 
       // Verificar se está dentro da grade
-      if (newI >= 0 && newI < 5 && newJ >= 0 && newJ < 5) {
+      if (newI >= 0 && newI < tamanho && newJ >= 0 && newJ < tamanho) {
           const adjacentCell = grid[newI][newJ];
 
           // Regras para o valor selecionado
