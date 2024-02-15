@@ -33,19 +33,31 @@ function createTable() {
 }
 
   
-  document.getElementById('generate-table').addEventListener('click', createTable);
+  //document.getElementById('generate-table').addEventListener('click', createTable);
   
   // Chama a função ao iniciar
   createTable();
   
 //////////////////////////////////////////////////////////////////////////////////
+//Resetando a tabelinha
 
+function resetGrid() {
+  // Recria o grid com os valores iniciais
+  grid = new Array(5).fill(null).map(() => new Array(5).fill([0, 1, 2, 3, 4, 5, 6]));
+  window.grid = grid;
+  createTable();
+}
+
+document.getElementById('generate-table').addEventListener('click', resetGrid);
+
+//////////////////////////////////////////////////////////////////////////////////
 const rules = {
-  0: [0,1, 2, 3,4], // 0 pode estar próximo a 1, 2 ou 3
-  1: [0,1, 2, 3,4],    // 1 pode estar próximo a 0 ou 4
-  2: [0,1, 2, 3,4],    // 2 pode estar próximo a 3 ou 5
-  3: [0,1, 2, 3,4],    // 3 pode estar próximo a 2 ou 6
-  4: [0,1, 2, 3,4]    // 4 pode estar próximo a 1 ou 5
+  0: [0,1, 2, 3,4,5], // 0 pode estar próximo a 1, 2 ou 3
+  1: [0,1, 2, 3,4,5],    // 1 pode estar próximo a 0 ou 4
+  2: [0,1, 2, 3,4,5],    // 2 pode estar próximo a 3 ou 5
+  3: [0,1, 2, 3,4,5],    // 3 pode estar próximo a 2 ou 6
+  4: [0,1, 2, 3,4,5],
+  5: [0,1, 2, 3,4,5]    // 4 pode estar próximo a 1 ou 5
 };
 
 const comodos = {
@@ -53,7 +65,8 @@ const comodos = {
   1: "Parede",
   2: "Canto",
   3: "Porta",
-  4: "Janela"
+  4: "Janela",
+  5: "Canto 2"
 };
 
 //////////////////////////////////////////////////////////////////////////////////

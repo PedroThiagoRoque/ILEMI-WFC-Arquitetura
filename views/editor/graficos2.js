@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as SceneUtils from 'three/addons/utils/SceneUtils.js';
 import * as OBC from '../../public/openbim-components.js'
 
 //Importando a matriz de representação do layout
 let matriz = window.grid; 
-
 
 //0. Importando modelos com OpenBim Components
 let blocos = [];
@@ -18,8 +18,23 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     let data = await file.arrayBuffer();
     let buffer = new Uint8Array(data);
     let model = await fragmentIfcLoader.load(buffer, "Base");
-   
-    blocos.push(model);
+
+    // Calcula o centro da bounding box do modelo
+    let boundingBox = new THREE.Box3().setFromObject(model);
+    let centro = new THREE.Vector3();
+    boundingBox.getCenter(centro);
+
+    // Cria um objeto pivô
+    let pivot = new THREE.Object3D();
+
+    // Ajusta a posição do modelo para que o centro esteja na origem do pivô
+    model.position.sub(new THREE.Vector3(centro.x, 0, centro.z));
+    // Adiciona o modelo ao pivô
+    pivot.add(model);
+   // Adiciona o pivô ao array blocos
+    blocos.push(pivot);
+    scene.add(pivot);
+    pivot.position.set(70, 50, 0);
 
     //Parede - bloco[1]
       file = await fetch('../../public/IFC/Parede.ifc');
@@ -27,31 +42,99 @@ async function carregaModelos(blocos, fragmentIfcLoader){
       buffer = new Uint8Array(data);
       model = await fragmentIfcLoader.load(buffer, "Parede");
     
-    blocos.push(model);
+    // Calcula o centro da bounding box do modelo
+    boundingBox = new THREE.Box3().setFromObject(model);
+    centro = new THREE.Vector3();
+    boundingBox.getCenter(centro);
 
-    //Canto -bloco[2]
+    // Cria um objeto pivô
+    pivot = new THREE.Object3D();
+
+    // Ajusta a posição do modelo para que o centro esteja na origem do pivô
+    model.position.sub(new THREE.Vector3(centro.x, 0, centro.z));
+    // Adiciona o modelo ao pivô
+    pivot.add(model);
+
+    // Adiciona o pivô ao array blocos
+    blocos.push(pivot);
+    scene.add(pivot);
+    pivot.position.set(70, 50, 0);
+
+
+    //Piso - bloco[2]
+    // Carrega a base
     file = await fetch('../../public/IFC/Canto.ifc');
-     data = await file.arrayBuffer();
-     buffer = new Uint8Array(data);
-     model = await fragmentIfcLoader.load(buffer, "Canto");
-     
-    blocos.push(model);
-    
+    data = await file.arrayBuffer();
+    buffer = new Uint8Array(data);
+
+    // Usando o fragmentIfcLoader para carregar o modelo
+    model = await fragmentIfcLoader.load(buffer, "Canto");
+    // Calcula o centro da bounding box do modelo
+     boundingBox = new THREE.Box3().setFromObject(model);
+     centro = new THREE.Vector3();
+    boundingBox.getCenter(centro);
+
+    // Cria um objeto pivô
+     pivot = new THREE.Object3D();
+
+    // Ajusta a posição do modelo para que o centro esteja na origem do pivô
+    model.position.sub(new THREE.Vector3(centro.x, 0, centro.z));
+    // Adiciona o modelo ao pivô
+    pivot.add(model);
+
+    // Adiciona o pivô ao array blocos
+    blocos.push(pivot);
+    scene.add(pivot);
+    pivot.position.set(70, 50, 0);
+
+
     //Porta - bloco[3]
      file = await fetch('../../public/IFC/Porta.ifc');
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
      model = await fragmentIfcLoader.load(buffer, "Porta");
      
-    blocos.push(model);
+    // Calcula o centro da bounding box do modelo
+     boundingBox = new THREE.Box3().setFromObject(model);
+     centro = new THREE.Vector3();
+    boundingBox.getCenter(centro);
+
+    // Cria um objeto pivô
+     pivot = new THREE.Object3D();
+
+    // Ajusta a posição do modelo para que o centro esteja na origem do pivô
+    model.position.sub(new THREE.Vector3(centro.x, 0, centro.z)); //centro
+    // Adiciona o modelo ao pivô
+    pivot.add(model);
+
+    // Adiciona o pivô ao array blocos
+    blocos.push(pivot);
+    scene.add(pivot);
+    pivot.position.set(70, 50, 0);
 
     //Janela - bloco[4]
      file = await fetch('../../public/IFC/Janela.ifc');
      data = await file.arrayBuffer();
      buffer = new Uint8Array(data);
      model = await fragmentIfcLoader.load(buffer, "Janela");
-    blocos.push(model);
+    
+    // Calcula o centro da bounding box do modelo
+     boundingBox = new THREE.Box3().setFromObject(model);
+     centro = new THREE.Vector3();
+    boundingBox.getCenter(centro);
 
+    // Cria um objeto pivô
+     pivot = new THREE.Object3D();
+
+    // Ajusta a posição do modelo para que o centro esteja na origem do pivô
+    model.position.sub(new THREE.Vector3(centro.x, 0, centro.z));
+    // Adiciona o modelo ao pivô
+    pivot.add(model);
+
+    // Adiciona o pivô ao array blocos
+    blocos.push(pivot);
+    scene.add(pivot);
+    pivot.position.set(70, 50, 0);
 }
 
 const components = new OBC.Components();
@@ -106,35 +189,25 @@ Init();
 
 function cloneObjeto(objeto) {
     //Gambiarra braba para funcionar o clone de objetos através da serealização do objeto BIM
-    //E centralizar os eixos dos objetos
-    
-    // Calcula o centro da bounding box
-    const boundingBox = new THREE.Box3().setFromObject(objeto);
-    const centro = new THREE.Vector3();
-    boundingBox.getCenter(centro);
-
-    // Cria um objeto pivô e adiciona à cena
-    const pivot = new THREE.Object3D();
-    scene.add(pivot);
-
-    // Ajusta a posição do objeto para que o centro esteja na origem do pivô
-    objeto.position.sub(centro);
-
-    // Adiciona o objeto ao pivô
-    pivot.add(objeto);
-    pivot.rotation.y += Math.PI / 2; // 90 graus em radianos
-
 
     //serialização
-    const objectJson = pivot.toJSON();
+    const objectJson = objeto.toJSON(); //pivot.toJSON();
     const newObject = new THREE.ObjectLoader().parse(objectJson);
     return newObject;
 }
 
 
 function criaLayout() {
-    objetos = []; // Reinicia o vetor de objetos para garantir que está vazio antes de começar
+    matriz = window.grid;
+    console.log("objs:", objetos)
+    console.log("matriz", matriz);
+    objetos.forEach(objeto => {
+        // Remove o objeto da cena
+        scene.remove(objeto); 
+    });
 
+    objetos = []; // Reinicia o vetor de objetos para garantir que está vazio antes de começar
+    
     //Zera posições não definidas
     for (let i = 0; i < matriz.length; i++) {
         for (let j = 0; j < matriz[i].length; j++) {
@@ -146,13 +219,17 @@ function criaLayout() {
 
     for (let i = 0; i < matriz.length; i++) {
         for (let j = 0; j < matriz[i].length; j++) {
-            // Obter o tipo de bloco a partir da matriz
-            const blocoTipo = matriz[i][j];
-            
-            //ALTERAR ORDEM POSITION.SET
-            // Clonar o objeto bloco correspondente
-            const blocoClone = cloneObjeto(blocos[matriz[i][j]]);
-            console.log("clone: ", blocoClone);
+                        
+            // Serializa o objeto para JSON
+            const objetoJson = blocos[matriz[i][j]].toJSON();
+            const stringJson = JSON.stringify(objetoJson);
+
+            // Desserializa o JSON para um novo objeto Three.js
+            const objectLoader = new THREE.ObjectLoader();
+            const blocoClone = objectLoader.parse(JSON.parse(stringJson));
+
+            console.log("blocoClone", blocoClone);
+
             // Posiciona o bloco clone de acordo com sua posição na matriz
             
             blocoClone.position.set(j * 2 - (matriz[i].length - 1), 0, i * 2 - (matriz.length - 1));
@@ -165,6 +242,7 @@ function criaLayout() {
 }
 document.getElementById('criaCena').addEventListener('click', criaLayout);
 
+////////////////////////////////////////////////////////////////////////////////////
 
 // 4. Adicionar Raycaster e Mouse - Clicando objetos na cena
 const raycaster = components.raycaster.get();
@@ -196,9 +274,12 @@ renderer.domElement.addEventListener('click', (event) => {
 
     if (intersects.length > 0) {
         console.log('Clicado bloco', intersects[0]);
-        intersects[0].object.rotation.y += Math.PI / 2; // Math.PI / 2 radianos é igual a 90 graus
+        //intersects[0].object.rotation.y += Math.PI / 2; // Math.PI / 2 radianos é igual a 90 graus
 
-    }
+        intersects[0].object.parent.parent.rotation.y += Math.PI / 2; // 90 graus em radianos
+
+        }
+            
 });
 
 // 6. Função de animação
