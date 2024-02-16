@@ -278,23 +278,74 @@ renderer.domElement.addEventListener('click', (event) => {
 ////////////////////////////////////////////////////////////////////////////////////
 //Highlight no hover do mouse
 
-const greenMaterial = new THREE.MeshStandardMaterial({color: '#BCF124'});
+/*const greenMaterial = new THREE.MeshStandardMaterial({color: '#BCF124'});
 let materialBloco;
-
+let materialFilhos = [];
 let previousSelection;
+
 window.onmousemove = () => {
 const result = components.raycaster.castRay(objetos);
 
-if (previousSelection) {
-materialBloco = result.object.material;
-previousSelection.material = materialBloco;
-}
 if (!result) {
-return;
+    return;
 }
+
+if (previousSelection) {
+    if(result.object.material) {
+        
+        materialBloco = result.object.material;
+        previousSelection.material = materialBloco;
+    }
+    
+}
+
 result.object.material = greenMaterial;
 previousSelection = result.object;
-}
+}*/
+
+const greenMaterial = new THREE.MeshStandardMaterial({ color: '#BCF124' });
+let previousSelection;
+let materialFilhos = [];
+
+window.onmousemove = () => {
+    const result = components.raycaster.castRay(objetos);
+
+    if (!result) {
+        if (previousSelection) {
+            // Restaura os materiais dos irmãos anteriores
+            previousSelection.parent.children.forEach((child, index) => {
+                if (materialFilhos[index]) {
+                    child.material = materialFilhos[index];
+                }
+            });
+            materialFilhos = []; // Limpa o array após a restauração
+        }
+        return;
+    }
+
+    if (previousSelection) {
+        // Restaura os materiais dos irmãos anteriores
+        previousSelection.parent.children.forEach((child, index) => {
+            if (materialFilhos[index]) {
+                child.material = materialFilhos[index];
+            }
+        });
+        materialFilhos = []; // Limpa o array após a restauração
+    }
+
+    // Salva os materiais originais dos irmãos do objeto atual
+    result.object.parent.children.forEach((child) => {
+        materialFilhos.push(child.material);
+    });
+
+    // Aplica o material verde ao objeto atual e aos seus irmãos
+    result.object.parent.children.forEach((child) => {
+        child.material = greenMaterial;
+    });
+
+    previousSelection = result.object;
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 
