@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import * as OBC from '../../public/openbim-components.js'
+import { OBJExporter } from 'three/examples/jsm/exporters/OBJExporter.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+
 
 //Importando a matriz de representação do layout
 let matriz = window.grid; 
@@ -7,6 +11,7 @@ let matriz = window.grid;
 //0. Importando modelos com OpenBim Components
 let blocos = [];
 let objetos = [];
+let modelID=0;
 const containerCena = document.getElementById('containerCena');
 
 async function carregaModelos(blocos, fragmentIfcLoader){
@@ -33,6 +38,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     blocos.push(pivot);
     scene.add(pivot);
     pivot.position.set(70, 50, 0);
+    
 
     //Parede - bloco[1]
       file = await fetch('../../public/IFC/Parede.ifc');
@@ -57,10 +63,9 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     blocos.push(pivot);
     scene.add(pivot);
     pivot.position.set(70, 50, 0);
-
+    
 
     //Piso - bloco[2]
-    // Carrega a base
     file = await fetch('../../public/IFC/Canto.ifc');
     data = await file.arrayBuffer();
     buffer = new Uint8Array(data);
@@ -84,7 +89,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     blocos.push(pivot);
     scene.add(pivot);
     pivot.position.set(70, 50, 0);
-
+    
 
     //Porta - bloco[3]
      file = await fetch('../../public/IFC/Porta.ifc');
@@ -109,6 +114,7 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     blocos.push(pivot);
     scene.add(pivot);
     pivot.position.set(70, 50, 0);
+    
 
     //Janela - bloco[4]
      file = await fetch('../../public/IFC/Janela.ifc');
@@ -133,22 +139,25 @@ async function carregaModelos(blocos, fragmentIfcLoader){
     blocos.push(pivot);
     scene.add(pivot);
     pivot.position.set(70, 50, 0);
+    
 }
 
 const components = new OBC.Components();
 
 components.scene = new OBC.SimpleScene(components);
-components.renderer = new OBC.SimpleRenderer(components, containerCena);
+components.renderer = new OBC.PostproductionRenderer(components, containerCena);
 components.camera = new OBC.SimpleCamera(components);
 components.raycaster = new OBC.SimpleRaycaster(components);
 
 components.init();
 
+let fragments = new OBC.FragmentManager(components);
+let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
+
 async function  Init() {
     //configura fragment
     
-    let fragments = new OBC.FragmentManager(components);
-    let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
+
     
     fragmentIfcLoader.settings.wasm = {
         path: "https://unpkg.com/web-ifc@0.0.46/",
@@ -182,6 +191,13 @@ camera.updateProjectionMatrix(); // Atualizar a matriz de projeção da câmera
 camera.position.z = 5; // Posicionar a câmera
 
 //Inicia a importação de blocos
+
+components.renderer.postproduction.enabled = true;
+const postproduction = components.renderer.postproduction;
+const custompass = postproduction.newCustomPass(scene, camera);
+//postproduction.setPasses(custompass); //outline
+
+
 Init();
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +221,8 @@ function criaLayout() {
         }
     }
 
+    const novoMaterial = new THREE.MeshStandardMaterial({ color: 0xbcbcbc }); // Cinza claro
+
     for (let i = 0; i < matriz.length; i++) {
         for (let j = 0; j < matriz[i].length; j++) {
                         
@@ -216,17 +234,13 @@ function criaLayout() {
             const objectLoader = new THREE.ObjectLoader();
             const blocoClone = objectLoader.parse(JSON.parse(stringJson));
 
-            console.log("blocoClone", blocoClone);
-
             // Posiciona o bloco clone de acordo com sua posição na matriz
-            
-            //blocoClone.position.set(j * 2 - (matriz[i].length - 1), 0, i * 2 - (matriz.length - 1));
             blocoClone.position.set(j - Math.floor(matriz[i].length / 2), 0, i - Math.floor(matriz.length / 2));
-
+            blocoClone.name = "bloco" + i + j;
+                        
             // Adiciona o bloco clonado ao vetor de objetos e à cena
             objetos.push(blocoClone);
             scene.add(blocoClone);
-
         
         }
     }
@@ -235,9 +249,10 @@ function criaLayout() {
 }
 document.getElementById('criaCena').addEventListener('click', criaLayout);
 
+
 ////////////////////////////////////////////////////////////////////////////////////
 
-// 4. Adicionar Raycaster e Mouse - Clicando objetos na cena
+//Adicionar Raycaster e Mouse - Clicando objetos na cena
 const raycaster = components.raycaster.get();
 const mouse = new THREE.Vector2();
 
@@ -267,41 +282,15 @@ renderer.domElement.addEventListener('click', (event) => {
 
     if (intersects.length > 0) {
         console.log('Clicado bloco', intersects[0]);
-        //intersects[0].object.rotation.y += Math.PI / 2; // Math.PI / 2 radianos é igual a 90 graus
 
         intersects[0].object.parent.parent.rotation.y += Math.PI / 2; // 90 graus em radianos
-
+        modelID = intersects[0].object.id;
         }
             
 });
 
 ////////////////////////////////////////////////////////////////////////////////////
 //Highlight no hover do mouse
-
-/*const greenMaterial = new THREE.MeshStandardMaterial({color: '#BCF124'});
-let materialBloco;
-let materialFilhos = [];
-let previousSelection;
-
-window.onmousemove = () => {
-const result = components.raycaster.castRay(objetos);
-
-if (!result) {
-    return;
-}
-
-if (previousSelection) {
-    if(result.object.material) {
-        
-        materialBloco = result.object.material;
-        previousSelection.material = materialBloco;
-    }
-    
-}
-
-result.object.material = greenMaterial;
-previousSelection = result.object;
-}*/
 
 const greenMaterial = new THREE.MeshStandardMaterial({ color: '#BCF124' });
 let previousSelection;
@@ -341,6 +330,8 @@ window.onmousemove = () => {
     // Aplica o material verde ao objeto atual e aos seus irmãos
     result.object.parent.children.forEach((child) => {
         child.material = greenMaterial;
+        child.material.side = THREE.DoubleSide;
+        child.material.needsUpdate = true;
     });
 
     previousSelection = result.object;
@@ -348,11 +339,108 @@ window.onmousemove = () => {
 
 
 ////////////////////////////////////////////////////////////////////////////////////
+//Exporta em dxf
 
+function exportSceneToOBJ(scene) {
+    const exporter = new OBJExporter();
+    //console.log("data: ",exporter.parse(scene));
+    let data = exporter.parse(scene);
+   
+    return data;
+}
+
+function downloadFile(data, filename) {
+    const blob = new Blob([data], { type: 'text/plain' });
+    //console.log("blob: ",blob);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link); // Necessário para Firefox
+    link.click();
+    document.body.removeChild(link); // Limpeza após download
+    URL.revokeObjectURL(url); // Limpar URL para liberar recursos
+}
+
+/*document.getElementById('exportaModelo').addEventListener('click', () => {
+    //const objData = exportSceneToOBJ(scene);
+    //downloadFile(objData, 'exportedScene.obj');
+    const gltfData = exportSceneToGLTF(scene);
+    downloadFile(gltfData, 'exportedScene.gltf');
+    
+});*/
+
+///////
+
+function exportGLTF( input ) {
+
+    const gltfExporter = new GLTFExporter();
+    const params = {
+        trs: true,
+        onlyVisible: true,
+        binary: false,
+        maxTextureSize: 4096
+    };
+
+    const options = {
+        trs: params.trs,
+        onlyVisible: params.onlyVisible,
+        binary: params.binary,
+        maxTextureSize: params.maxTextureSize
+    };
+    gltfExporter.parse(
+        input,
+        function ( result ) {
+
+            if ( result instanceof ArrayBuffer ) {
+                saveArrayBuffer( result, 'scene.glb' );
+            } else {
+                const output = JSON.stringify( result, null, 2 );
+                console.log( output );
+                saveString( output, 'scene.gltf' );
+            }
+
+        },
+        function ( error ) {
+            console.log( 'An error happened during parsing', error );
+        },
+        options
+    );
+
+}
+
+const link = document.createElement( 'a' );
+link.style.display = 'none';
+document.body.appendChild( link ); // Firefox workaround, see #6594
+
+function save( blob, filename ) {
+
+    link.href = URL.createObjectURL( blob );
+    link.download = filename;
+    link.click();
+
+    // URL.revokeObjectURL( url ); breaks Firefox...
+
+}
+
+function saveString( text, filename ) {
+    save( new Blob( [ text ], { type: 'text/plain' } ), filename );
+}
+
+
+function saveArrayBuffer( buffer, filename ) {
+    save( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
+}
+
+document.getElementById('exportaModelo').addEventListener('click', () => { 
+    exportGLTF(components.scene.get());
+});
+
+////////////////////////////////////////////////////////////////////////////////////
 // 6. Função de animação
 function animate() {
     requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+    //renderer.render(scene, camera);
 }
 
 // 7. Posicionar a câmera e iniciar a animação

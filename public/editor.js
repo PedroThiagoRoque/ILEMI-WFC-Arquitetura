@@ -1,6 +1,6 @@
 // O mundo é formado não apenas pelo que já existe, mas pelo que pode efetivamente existir. -Milton Santos
 
-const tamanho = 5;
+const tamanho = 8;
 let grid = new Array(tamanho).fill(null).map(() => new Array(tamanho).fill([0, 1, 2, 3, 4]));
 window.grid = grid;
 
@@ -45,7 +45,7 @@ function createTable() {
 
 function resetGrid() {
   // Recria o grid com os valores iniciais
-  grid = new Array(tamanho).fill(null).map(() => new Array(tamanho).fill([0, 1, 2, 3, 4, 5, 6]));
+  grid = new Array(tamanho).fill(null).map(() => new Array(tamanho).fill([0, 1, 2, 3, 4]));
   window.grid = grid;
   createTable();
 }
@@ -57,8 +57,8 @@ const rules = {
   0: [0,1, 2, 3,4], // Piso
   1: [0,1, 2, 3,4],    // Parede
   2: [0,1, 2, 3,4],    // Canto
-  3: [0,1, 2, 3,4],    // Porta
-  4: [0,1, 2, 3,4],   // Janela
+  3: [0,1, 2, 4],    // Porta
+  4: [0,1, 2, 3],   // Janela
 };
 
 const comodos = {
@@ -106,7 +106,7 @@ function cellClick(i, j) {
 
 function getValidOptionsFromAdjacent(i, j) {
   const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-  let validOptions = [0, 1, 2, 3, 4, 5, 6]; // Inicia com todas as opções
+  let validOptions = [0, 1, 2, 3, 4]; // Inicia com todas as opções
 
   directions.forEach(([di, dj]) => {
     const newI = i + di;
