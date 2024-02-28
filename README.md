@@ -1,5 +1,5 @@
-# Projeto Nova ILÊ 🏡 
- O Projeto Nova ILÊ (Casa, em yorubá) visa desenvolver um sistema inovador para a geração de projetos de habitação de interesse social, combinando a técnica de Wave Function Collapse (WFC) com o uso de arquivos Industry Foundation Classes (IFC) e Inteligência Artificial através de modelos de Large Language Model (LLM). O objetivo é criar projetos habitacionais que sejam não apenas eficientes e de baixo custo, mas também personalizáveis e adaptáveis às necessidades variadas dos moradores.
+# Projeto ILÊMI 🏡 
+ O Projeto ILÊMI (Minha Casa, em yorubá) visa desenvolver um sistema inovador para a geração de projetos de habitação de interesse social, combinando a técnica de Wave Function Collapse (WFC) com o uso de arquivos Industry Foundation Classes (IFC) e Inteligência Artificial através de modelos de Large Language Model (LLM). O objetivo é criar projetos habitacionais que sejam não apenas eficientes e de baixo custo, mas também personalizáveis e adaptáveis às necessidades variadas dos moradores.
 
 ### Wave Function Collapse (WFC): 
  Esta técnica, inspirada na mecânica quântica, será utilizada para gerar layouts automáticos de habitações. O WFC é capaz de analisar um conjunto de módulos pré-definidos (como quartos, banheiros, cozinhas) e combinar esses módulos de maneira lógica e funcional, respeitando as restrições de espaço e design. Isso permite a criação rápida de layouts diversos, oferecendo uma gama de opções para diferentes famílias e terrenos.
@@ -25,12 +25,12 @@ Neste projeto foram utilizadas as seguintes tecnologias:
 - Express
 - Node.js
 - IFC.js
-- 
+- OpenBim-Components
 
 ### 📝 Features
 - [X] Implementação do método WFC em matriz numérica de layout
 - [X] Edição de células colapsadas
-- [ ] Geração de layout 3D com cômodos em IFC
+- [X] Geração de layout 3D com cômodos em IFC
 - [ ] Geração de código numérico único referente a cada layout
 - [ ] Exportação de arquivo DXF do layout gerado
 - [ ] Integração com API de IA
