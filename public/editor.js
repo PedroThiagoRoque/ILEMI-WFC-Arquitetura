@@ -58,7 +58,7 @@ const rules = {
   1: [0,1, 2, 3,4],    // Parede
   2: [0,1, 2, 3,4],    // Canto
   3: [0,1, 2, 4],    // Porta
-  4: [0,1, 2, 3],   // Janela
+  4: [0,1, 2, 3,4],   // Janela
 };
 
 const comodos = {

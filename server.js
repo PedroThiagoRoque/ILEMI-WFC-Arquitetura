@@ -11,7 +11,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
 
-// rotas
+// ROTAS
+///////////////// editor
 const editorRouter = require('./routes/editor');
 app.use('/editor', editorRouter);
 
@@ -19,6 +20,9 @@ app.use('/editor', editorRouter);
 app.get('/', (req, res) => {
     res.render('home/home');
 });
+//////////////// exportador
+const exportRouter = require('./routes/exportador');
+app.use('/exportador', exportRouter);
 
 //roda server
 app.listen(port, () => console.log(`Servidor rodando na porta ${port}`));
