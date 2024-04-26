@@ -93,11 +93,22 @@
 }
 
 td {
-    cursor: pointer; /* Estilo do cursor para as células da tabela */
+    cursor: pointer;
   }
   .selected {
-    background-color: #D7BDE2; /* Cor roxo claro para células selecionadas */
+    background-color: #D7BDE2; 
   }
+
+  table {
+    width: 100%; 
+    table-layout: fixed; 
+}
+
+td {
+    height: 50px; 
+    width: 50px; 
+}
+
 
   </style>
 </head>
@@ -133,70 +144,72 @@ td {
         </div>
 
         <script>
-function createTable(rows, cols) {
-  const container = document.getElementById('table-container');
-  container.innerHTML = ''; // Limpa o conteúdo atual
-  const table = document.createElement('table');
-  table.className = 'table table-bordered'; // Classes do Bootstrap
-
-  let startRow, startCol, dragging = false;
-
-  for (let i = 0; i < rows; i++) {
-    const tr = document.createElement('tr');
-    for (let j = 0; j < cols; j++) {
-      const td = document.createElement('td');
-      td.addEventListener('mousedown', function(e) {
-        dragging = true;
-        startRow = i;
-        startCol = j;
-        clearSelection(); // Limpa a seleção anterior
-        e.preventDefault(); // Evita seleção de texto ao arrastar
-      });
-
-      td.addEventListener('mouseenter', function() {
-        if (dragging) {
-          selectCells(startRow, startCol, i, j);
-        }
-      });
-
-      td.addEventListener('mouseup', function() {
-        dragging = false;
-      });
-
-      tr.appendChild(td);
-    }
-    table.appendChild(tr);
-  }
-  container.appendChild(table);
-
-  function selectCells(r1, c1, r2, c2) {
-    const minRow = Math.min(r1, r2);
-    const maxRow = Math.max(r1, r2);
-    const minCol = Math.min(c1, c2);
-    const maxCol = Math.max(c1, c2);
-
-    for (let r = minRow; r <= maxRow; r++) {
-      for (let c = minCol; c <= maxCol; c++) {
-        table.rows[r].cells[c].classList.add('selected');
-      }
-    }
-  }
-
-  function clearSelection() {
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        table.rows[r].cells[c].classList.remove('selected');
-      }
-    }
-  }
-}
-
-createTable(10, 10); // Cria uma tabela de 10x10 células
-
-document.addEventListener('mouseup', function() { // Encerra a seleção ao soltar o mouse em qualquer lugar
-  dragging = false;
-});
-        </script>
+            function createTable(rows, cols) {
+              const container = document.getElementById('table-container');
+              container.innerHTML = ''; // Limpa conteúdo existente
+              const table = document.createElement('table');
+              table.className = 'table table-bordered';
+            
+              let startRow, startCol, dragging = false;
+            
+              for (let i = 0; i < rows; i++) {
+                const tr = document.createElement('tr');
+                for (let j = 0; j < cols; j++) {
+                  const td = document.createElement('td');
+                  td.addEventListener('mousedown', function(e) {
+                    dragging = true;
+                    startRow = i;
+                    startCol = j;
+                    clearSelection(); // Inicia com uma seleção limpa
+                    selectCells(i, j, i, j); // Seleciona a célula inicial
+                    e.preventDefault();
+                  });
+            
+                  td.addEventListener('mouseenter', function() {
+                    if (dragging) {
+                      clearSelection(); // Limpa a seleção anterior a cada novo movimento
+                      selectCells(startRow, startCol, i, j); // Atualiza a seleção com base no movimento
+                    }
+                  });
+            
+                  td.addEventListener('mouseup', function() {
+                    dragging = false;
+                  });
+            
+                  tr.appendChild(td);
+                }
+                table.appendChild(tr);
+              }
+              container.appendChild(table);
+            
+              function selectCells(r1, c1, r2, c2) {
+                const minRow = Math.min(r1, r2);
+                const maxRow = Math.max(r1, r2);
+                const minCol = Math.min(c1, c2);
+                const maxCol = Math.max(c1, c2);
+            
+                for (let r = minRow; r <= maxRow; r++) {
+                  for (let c = minCol; c <= maxCol; c++) {
+                    table.rows[r].cells[c].classList.add('selected');
+                  }
+                }
+              }
+            
+              function clearSelection() {
+                for (let r = 0; r < rows; r++) {
+                  for (let c = 0; c < cols; c++) {
+                    table.rows[r].cells[c].classList.remove('selected');
+                  }
+                }
+              }
+            }
+            
+            createTable(10, 10); // Cria uma tabela de 10x10 células
+            
+            document.addEventListener('mouseup', function() { // Encerra a seleção ao soltar o mouse fora da tabela
+              dragging = false;
+            });
+            </script>
 
         <!-- <script src="/public/comodos.js"></script> -->
         <script type="module" src="/public/bundle.js"></script>
