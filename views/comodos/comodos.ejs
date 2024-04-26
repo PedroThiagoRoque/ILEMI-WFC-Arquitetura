@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ILÊMI - Editor de cômodos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #EAE0CC;
+    }
+    header {
+      background-color: #F7F3E3;
+      width: 100%;
+      padding: 1.2rem 3rem;
+      margin-bottom: 2rem;
+    }
+    
+    .rounded-container {
+      background-color: #F7F3E3;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    footer {
+      color: #3E3B2C;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #F7F3E3;
+      padding: 10px 0;
+    }
+    a, a:hover, a:active, a:visited{
+        color: #FF4E08;  
+    }
+
+    .table-container {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.table-container td {
+  border: 1px solid #3E3B2C;
+  text-align: center;
+  padding: 5px;
+  height: 3vw; 
+}
+
+    .table-container {
+    background-color: #EAE0CC;
+    }
+
+    .btn-light {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: inherit;
+}
+
+
+    .btn-verde, .btn-verde:hover, .btn-verde:visited{
+    color: #EAE0CC;
+    background-color: #3e3b2c;
+    border-color: #3E3B2C;
+    }
+
+    .btn-verde:active { 
+        background-color: #FF4E08;
+    }
+
+    #popup-container button {
+     margin: 2px;
+    }
+
+    #popup-container {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    }
+
+    @media (max-width: 768px) {
+  .table-container td {
+    height: 3vw; 
+  }
+}
+
+td {
+    cursor: pointer; /* Estilo do cursor para as células da tabela */
+  }
+  .selected {
+    background-color: #D7BDE2; /* Cor roxo claro para células selecionadas */
+  }
+
+  </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row" id="principal">
+          <div class="col-sm-12 col-md-6">
+            <div class="rounded-container">
+              
+                <div id="table-container"></div>
+                <button id="generate-table" class="btn btn-verde shadow-none mt-3">Limpar Tabela</button>
+                
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-6">
+            <div class="rounded-container">
+              <div id="containerCena" style="height: 400px;"> </div>
+    
+              <button id="criaCena" class="btn btn-verde shadow-none mt-3">Criar modelo</button>
+              <button id="exportaModelo" class="btn btn-verde shadow-none mt-3">Exportar modelo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <footer>
+        Criado por <a href="https://github.com/PedroThiagoRoque" target="_blank">Pedro Thiago Roque</a>
+      </footer>
+    
+      
+        <div id="popup-container" style="display: none; position: absolute; z-index: 10;">
+        
+        </div>
+
+        <script>
+function createTable(rows, cols) {
+  const container = document.getElementById('table-container');
+  container.innerHTML = ''; // Limpa o conteúdo atual
+  const table = document.createElement('table');
+  table.className = 'table table-bordered'; // Classes do Bootstrap
+
+  let startRow, startCol, dragging = false;
+
+  for (let i = 0; i < rows; i++) {
+    const tr = document.createElement('tr');
+    for (let j = 0; j < cols; j++) {
+      const td = document.createElement('td');
+      td.addEventListener('mousedown', function(e) {
+        dragging = true;
+        startRow = i;
+        startCol = j;
+        clearSelection(); // Limpa a seleção anterior
+        e.preventDefault(); // Evita seleção de texto ao arrastar
+      });
+
+      td.addEventListener('mouseenter', function() {
+        if (dragging) {
+          selectCells(startRow, startCol, i, j);
+        }
+      });
+
+      td.addEventListener('mouseup', function() {
+        dragging = false;
+      });
+
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  container.appendChild(table);
+
+  function selectCells(r1, c1, r2, c2) {
+    const minRow = Math.min(r1, r2);
+    const maxRow = Math.max(r1, r2);
+    const minCol = Math.min(c1, c2);
+    const maxCol = Math.max(c1, c2);
+
+    for (let r = minRow; r <= maxRow; r++) {
+      for (let c = minCol; c <= maxCol; c++) {
+        table.rows[r].cells[c].classList.add('selected');
+      }
+    }
+  }
+
+  function clearSelection() {
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        table.rows[r].cells[c].classList.remove('selected');
+      }
+    }
+  }
+}
+
+createTable(10, 10); // Cria uma tabela de 10x10 células
+
+document.addEventListener('mouseup', function() { // Encerra a seleção ao soltar o mouse em qualquer lugar
+  dragging = false;
+});
+        </script>
+
+        <!-- <script src="/public/comodos.js"></script> -->
+        <script type="module" src="/public/bundle.js"></script>
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/js/bootstrap.min.js"></script>
+</body>
+</html>

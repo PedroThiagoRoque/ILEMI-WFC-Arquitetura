@@ -20,9 +20,14 @@ app.use('/editor', editorRouter);
 app.get('/', (req, res) => {
     res.render('home/home');
 });
+
 //////////////// exportador
 const exportRouter = require('./routes/exportador');
 app.use('/exportador', exportRouter);
+
+//////////////// exportador
+const comodostRouter = require('./routes/comodos');
+app.use('/comodos', comodostRouter);
 
 //roda server
 app.listen(port, () => console.log(`Servidor rodando na porta ${port}`));

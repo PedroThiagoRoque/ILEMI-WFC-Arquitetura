@@ -12,6 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PedroThiagoRoque/WFC-Arquitetura.git"
+
   },
   "keywords": [
     "Habitação",
@@ -43,10 +44,12 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3"
   },
+
   "nodemonConfig": {
     "ignore": [
       "public/*",
       "*.cjs"
     ]
   }
+
 }
