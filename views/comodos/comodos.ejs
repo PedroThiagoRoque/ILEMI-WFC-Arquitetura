@@ -109,6 +109,21 @@ td {
     width: 50px; 
 }
 
+.matrix-display {
+    font-size: 0.8rem;
+    margin-top: 20px;
+    display: inline-block;
+    background: #f8f9fa;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  .matrix-display td {
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    border: 1px solid #eee;
+  }
+
 
   </style>
 </head>
@@ -120,7 +135,7 @@ td {
               
                 <div id="table-container"></div>
                 <button id="generate-table" class="btn btn-verde shadow-none mt-3">Limpar Tabela</button>
-                
+                <button id="add-room" class="btn btn-primary">Adicionar Cômodo</button>
             </div>
           </div>
           <div class="col-sm-12 col-md-6">
@@ -144,72 +159,90 @@ td {
         </div>
 
         <script>
-            function createTable(rows, cols) {
-              const container = document.getElementById('table-container');
-              container.innerHTML = ''; // Limpa conteúdo existente
-              const table = document.createElement('table');
-              table.className = 'table table-bordered';
-            
-              let startRow, startCol, dragging = false;
-            
-              for (let i = 0; i < rows; i++) {
-                const tr = document.createElement('tr');
-                for (let j = 0; j < cols; j++) {
-                  const td = document.createElement('td');
-                  td.addEventListener('mousedown', function(e) {
-                    dragging = true;
-                    startRow = i;
-                    startCol = j;
-                    clearSelection(); // Inicia com uma seleção limpa
-                    selectCells(i, j, i, j); // Seleciona a célula inicial
-                    e.preventDefault();
-                  });
-            
-                  td.addEventListener('mouseenter', function() {
-                    if (dragging) {
-                      clearSelection(); // Limpa a seleção anterior a cada novo movimento
-                      selectCells(startRow, startCol, i, j); // Atualiza a seleção com base no movimento
-                    }
-                  });
-            
-                  td.addEventListener('mouseup', function() {
-                    dragging = false;
-                  });
-            
-                  tr.appendChild(td);
-                }
-                table.appendChild(tr);
-              }
-              container.appendChild(table);
-            
-              function selectCells(r1, c1, r2, c2) {
-                const minRow = Math.min(r1, r2);
-                const maxRow = Math.max(r1, r2);
-                const minCol = Math.min(c1, c2);
-                const maxCol = Math.max(c1, c2);
-            
-                for (let r = minRow; r <= maxRow; r++) {
-                  for (let c = minCol; c <= maxCol; c++) {
-                    table.rows[r].cells[c].classList.add('selected');
+          let roomMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
+          let roomCounter = 1; // Inicia a contagem de cômodos de 1 a 10
+          const colors = ['#FFC0CB', '#FFD700', '#ADFF2F', '#40E0D0', '#FFA500', '#20B2AA', '#9370DB', '#FF6347', '#4682B4', '#D7BDE2'];
+          let currentSelection = [];
+
+          function createTable(rows, cols) {
+            const container = document.getElementById('table-container');
+            container.innerHTML = '';
+            const table = document.createElement('table');
+            table.className = 'table table-bordered';
+
+            let startRow, startCol, dragging = false;
+
+            for (let i = 0; i < rows; i++) {
+              const tr = document.createElement('tr');
+              for (let j = 0; j < cols; j++) {
+                const td = document.createElement('td');
+                td.dataset.row = i;
+                td.dataset.col = j;
+
+                td.addEventListener('mousedown', function(e) {
+                  dragging = true;
+                  startRow = i;
+                  startCol = j;
+                  clearSelection(); // Inicia com uma seleção limpa
+                  selectCells(i, j, i, j); // Seleciona a célula inicial
+                  e.preventDefault();
+                });
+
+                td.addEventListener('mouseenter', function() {
+                  if (dragging) {
+                    clearSelection(); // Limpa a seleção anterior a cada novo movimento
+                    selectCells(startRow, startCol, i, j); // Atualiza a seleção com base no movimento
                   }
-                }
+                });
+
+                td.addEventListener('mouseup', function() {
+                  dragging = false;
+                });
+
+                tr.appendChild(td);
               }
-            
-              function clearSelection() {
-                for (let r = 0; r < rows; r++) {
-                  for (let c = 0; c < cols; c++) {
-                    table.rows[r].cells[c].classList.remove('selected');
-                  }
-                }
+              table.appendChild(tr);
+            }
+            container.appendChild(table);
+          }
+
+          function selectCells(r1, c1, r2, c2) {
+            const minRow = Math.min(r1, r2);
+            const maxRow = Math.max(r1, r2);
+            const minCol = Math.min(c1, c2);
+            const maxCol = Math.max(c1, c2);
+            currentSelection = [];
+
+            for (let r = minRow; r <= maxRow; r++) {
+              for (let c = minCol; c <= maxCol; c++) {
+                const cell = document.querySelector(`td[data-row="${r}"][data-col="${c}"]`);
+                cell.classList.add('selected');
+                currentSelection.push(cell);
               }
             }
-            
-            createTable(10, 10); // Cria uma tabela de 10x10 células
-            
-            document.addEventListener('mouseup', function() { // Encerra a seleção ao soltar o mouse fora da tabela
-              dragging = false;
+          }
+
+          function clearSelection() {
+            document.querySelectorAll('td').forEach(cell => cell.classList.remove('selected'));
+          }
+
+          function addRoom() {
+            if (roomCounter > 10) {
+              alert('Máximo de 10 cômodos atingido.');
+              return;
+            }
+            const color = colors[roomCounter - 1];
+            currentSelection.forEach(cell => {
+              cell.style.backgroundColor = color;
+              roomMatrix[cell.dataset.row][cell.dataset.col] = roomCounter;
             });
-            </script>
+            roomCounter++;
+          }
+
+          document.getElementById('add-room').addEventListener('click', addRoom);
+
+          createTable(10, 10);
+          </script>
 
         <!-- <script src="/public/comodos.js"></script> -->
         <script type="module" src="/public/bundle.js"></script>
