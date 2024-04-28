@@ -17,7 +17,7 @@ export default [
 	  ]*/
 
 	  buildConfig('views/editor/graficos2.js', 'bundle'),
-	  buildConfig('public/exportador.js', 'bundle2'),
+	  //buildConfig('public/exportador.js', 'bundle2'),
 	];
 
 function buildConfig(inputFileName, outputFileName) {

@@ -95,8 +95,10 @@
 td {
     cursor: pointer;
   }
+
   .selected {
-    background-color: #D7BDE2; 
+    background-color: rgba(255, 255, 0, 0.5); /* Amarelo semi-transparente */
+    border: 2px solid red; /* Borda vermelha para destacar a seleção */
   }
 
   table {
@@ -126,11 +128,42 @@ td {
     border: 1px solid #eee;
   }
 
+  #room-type-menu {
+    position: absolute;
+    display: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
 
+  }
+  #room-type-menu button {
+    margin-bottom: 5px;
+    color: #EAE0CC;
+    background-color: #3e3b2c;
+    border-color: #3e3b2c;
+  }
+
+  .btn:focus,.btn:active {
+   outline: none !important;
+   box-shadow: none;
+}
+
+#room-type-menu .close-btn {
+  margin: 5px;
+  cursor: pointer;
+  width: fit-content;
+  background-color: #9E8572;
+  color: white
+}
   </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
         <div class="row" id="principal">
           <div class="col-sm-12 col-md-6">
             <div class="rounded-container">
@@ -153,7 +186,20 @@ td {
           </div>
         </div>
       </div>
-    
+
+      <div id="room-type-menu">
+        <button class="btn btn-small btn-danger close-btn" style="float: right;">&times;</button>
+        <button class="btn btn-primary room-type" data-type="1">Dormitório</button>
+        <button class="btn btn-primary room-type" data-type="2">Cozinha</button>
+        <button class="btn btn-primary room-type" data-type="3">Sala</button>
+        <button class="btn btn-primary room-type" data-type="4">Banheiro</button>
+        <button class="btn btn-primary room-type" data-type="5">Lavanderia</button>
+        <button class="btn btn-primary room-type" data-type="6">Sala+Cozinha</button>
+        <button class="btn btn-primary room-type" data-type="7">Parede</button>
+        <button class="btn btn-primary room-type" data-type="8">Porta</button>
+        <button class="btn btn-primary room-type" data-type="9">Janela</button>
+      </div>
+
       <footer>
         Criado por <a href="https://github.com/PedroThiagoRoque" target="_blank">Pedro Thiago Roque</a>
       </footer>
@@ -163,109 +209,7 @@ td {
         
         </div>
 
-        <script>
-            let roomMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
-            let roomCounter = 1;
-            const colors = ['#FFC0CB', '#FFD700', '#ADFF2F', '#40E0D0', '#FFA500', '#20B2AA', '#9370DB', '#FF6347', '#4682B4', '#D7BDE2'];
-            let currentSelection = [];
-
-            function createTable(rows, cols) {
-              const container = document.getElementById('table-container');
-              container.innerHTML = '';
-              const table = document.createElement('table');
-              table.className = 'table table-bordered';
-
-              let startRow, startCol, dragging = false;
-
-              for (let i = 0; i < rows; i++) {
-                const tr = document.createElement('tr');
-                for (let j = 0; j < cols; j++) {
-                  const td = document.createElement('td');
-                  td.dataset.row = i;
-                  td.dataset.col = j;
-
-                  td.addEventListener('mousedown', function(e) {
-                    dragging = true;
-                    startRow = i;
-                    startCol = j;
-                    clearSelection();
-                    selectCells(i, j, i, j);
-                    e.preventDefault();
-                  });
-
-                  td.addEventListener('mouseenter', function() {
-                    if (dragging) {
-                      clearSelection();
-                      selectCells(startRow, startCol, i, j);
-                    }
-                  });
-
-                  td.addEventListener('mouseup', function() {
-                    dragging = false;
-                  });
-
-                  tr.appendChild(td);
-                }
-                table.appendChild(tr);
-              }
-              container.appendChild(table);
-            }
-
-            function selectCells(r1, c1, r2, c2) {
-              const minRow = Math.min(r1, r2);
-              const maxRow = Math.max(r1, r2);
-              const minCol = Math.min(c1, c2);
-              const maxCol = Math.max(c1, c2);
-              currentSelection = [];
-
-              for (let r = minRow; r <= maxRow; r++) {
-                for (let c = minCol; c <= maxCol; c++) {
-                  const cell = document.querySelector(`td[data-row="${r}"][data-col="${c}"]`);
-                  cell.classList.add('selected');
-                  currentSelection.push(cell);
-                }
-              }
-            }
-
-            function clearSelection() {
-              document.querySelectorAll('td').forEach(cell => cell.classList.remove('selected'));
-            }
-
-            function addRoom() {
-              if (roomCounter > 10) {
-                alert('Máximo de 10 cômodos atingido.');
-                return;
-              }
-              const color = colors[roomCounter - 1];
-              currentSelection.forEach(cell => {
-                cell.style.backgroundColor = color;
-                roomMatrix[cell.dataset.row][cell.dataset.col] = roomCounter;
-              });
-              roomCounter++;
-              updateMatrixDisplay();
-            }
-
-            function updateMatrixDisplay() {
-              const matrixDisplay = document.querySelector('.matrix-display');
-              matrixDisplay.innerHTML = '';
-              roomMatrix.forEach(row => {
-                const tr = document.createElement('tr');
-                row.forEach(cell => {
-                  const td = document.createElement('td');
-                  td.textContent = cell;
-                  tr.appendChild(td);
-                });
-                matrixDisplay.appendChild(tr);
-              });
-            }
-
-            document.getElementById('add-room').addEventListener('click', addRoom);
-
-            createTable(10, 10);
-            updateMatrixDisplay(); // Inicializa a exibição da matriz
-            </script>
-
-        <!-- <script src="/public/comodos.js"></script> -->
+        <script src="/public/comodos.js"></script>
         <script type="module" src="/public/bundle.js"></script>
       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
