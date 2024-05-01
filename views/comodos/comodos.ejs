@@ -129,7 +129,7 @@ td {
   }
 
   #room-type-menu {
-    position: absolute;
+    /*position: absolute;
     display: none;
     background-color: white;
     border: 1px solid #ccc;
@@ -138,7 +138,17 @@ td {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: space-evenly;*/
+    position: absolute;
+    display: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 1000;
+    width: auto; /* ou especificar uma largura fixa */
+    grid-template-columns: repeat(2, 1fr); /* Cria duas colunas de igual largura */
+    display: grid;
+    gap: 5px; /* Espaço entre os botões */
 
   }
   #room-type-menu button {
@@ -188,16 +198,16 @@ td {
       </div>
 
       <div id="room-type-menu">
-        <button class="btn btn-small btn-danger close-btn" style="float: right;">&times;</button>
-        <button class="btn btn-primary room-type" data-type="1">Dormitório</button>
-        <button class="btn btn-primary room-type" data-type="2">Cozinha</button>
-        <button class="btn btn-primary room-type" data-type="3">Sala</button>
-        <button class="btn btn-primary room-type" data-type="4">Banheiro</button>
-        <button class="btn btn-primary room-type" data-type="5">Lavanderia</button>
-        <button class="btn btn-primary room-type" data-type="6">Sala+Cozinha</button>
-        <button class="btn btn-primary room-type" data-type="7">Parede</button>
-        <button class="btn btn-primary room-type" data-type="8">Porta</button>
-        <button class="btn btn-primary room-type" data-type="9">Janela</button>
+        <button class="btn btn-small btn-danger close-btn" style="float: right;">&times;</button><br>
+        <button class="btn btn-primary room-type" data-type="101">Dormitório</button>
+        <button class="btn btn-primary room-type" data-type="102">Cozinha</button>
+        <button class="btn btn-primary room-type" data-type="103">Sala</button>
+        <button class="btn btn-primary room-type" data-type="104">Banheiro</button>
+        <button class="btn btn-primary room-type" data-type="105">Lavanderia</button>
+        <button class="btn btn-primary room-type" data-type="106">Sala+Cozinha</button>
+        <button class="btn btn-primary room-type" data-type="107">Parede</button>
+        <button class="btn btn-primary room-type" data-type="108">Porta</button>
+        <button class="btn btn-primary room-type" data-type="109">Janela</button>
       </div>
 
       <footer>

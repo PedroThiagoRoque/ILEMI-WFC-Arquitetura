@@ -75,11 +75,11 @@ function clearSelection() {
 }
 
 function addRoom(roomType) {
-  if (roomCounter > 10) {
+ /* if (roomCounter > 10) {
     alert('Máximo de 10 cômodos atingido.');
     return;
-  }
-  const color = colors[roomType - 1];
+  }*/
+  const color = colors[roomType - 101];
   currentSelection.forEach(cell => {
     cell.style.backgroundColor = color;
     roomMatrix[cell.dataset.row][cell.dataset.col] = roomType;
@@ -92,7 +92,7 @@ function displayRoomTypeMenu(x, y) {
   const menu = document.getElementById('room-type-menu');
   menu.style.left = `${x}px`;
   menu.style.top = `${y}px`;
-  menu.style.display = 'flex';
+  menu.style.display = 'grid';
 
   menu.querySelectorAll('.room-type').forEach(button => {
     button.onclick = function() {
@@ -124,4 +124,69 @@ function updateMatrixDisplay() {
 createTable(10, 10);
 updateMatrixDisplay();
 
+//////////////////////////////////////////////////////////////////////
+//Transformaçação em layout ILÊMI
 
+function transformMatrix(matrix) {
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  let transformedMatrix = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+  // Inicializando as bordas externas com 1
+  for (let i = 0; i < rows; i++) {
+      transformedMatrix[i][0] = 1;
+      transformedMatrix[i][cols - 1] = 1;
+  }
+  for (let j = 0; j < cols; j++) {
+      transformedMatrix[0][j] = 1;
+      transformedMatrix[rows - 1][j] = 1;
+  }
+
+  // Marcação de bordas internas compartilhadas apenas uma vez
+  for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+          if (i < rows - 1 && matrix[i][j] !== matrix[i + 1][j]) {
+              transformedMatrix[i + 1][j] = 1; // Marca apenas a borda inferior
+          }
+          if (j < cols - 1 && matrix[i][j] !== matrix[i][j + 1]) {
+              transformedMatrix[i][j + 1] = 1; // Marca apenas a borda direita
+          }
+      }
+  }
+
+  return transformedMatrix;
+}
+
+// Exemplo de uso:
+let matrix = [
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+
+let transformedMatrix = transformMatrix(matrix);
+console.log(transformedMatrix);
+
+
+/*
+let matrix = [
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [0,   0,   0,   0,   0,   0,   0,   0,   0,   0]
+];
+
+*/
