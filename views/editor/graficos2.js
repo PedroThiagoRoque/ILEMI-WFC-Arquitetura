@@ -6,8 +6,8 @@ import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 
 //Importando a matriz de representação do layout
-let matriz = window.grid; 
-
+//let matriz = window.grid; 
+let matriz = window.grid
 //0. Importando modelos com OpenBim Components
 let blocos = [];
 let objetos = [];

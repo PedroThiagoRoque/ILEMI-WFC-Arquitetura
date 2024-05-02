@@ -1,11 +1,11 @@
 
 const tamanho = 10;
-let grid = new Array(tamanho).fill(null).map(() => new Array(tamanho).fill([0, 1, 2, 3, 4]));
-window.grid = grid;
+let roomMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
+window.grid = roomMatrix;
 
 //////////////////////////////////////////////////////////////////////
 
-let roomMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
+//let roomMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
 let roomCounter = 1;
 const colors = ['#FFC0CB', '#FFD700', '#ADFF2F', '#40E0D0', '#FFA500', '#20B2AA', '#9370DB', '#FF6347', '#4682B4', '#D7BDE2'];
 let currentSelection = [];
@@ -153,10 +153,17 @@ function transformMatrix(matrix) {
           }
       }
   }
-
+  
+  console.log("matriz alterada: ",transformedMatrix);
+  window.grid = transformedMatrix;
   return transformedMatrix;
 }
 
+document.getElementById('add-room').addEventListener("click", function() {
+  transformMatrix(roomMatrix);
+});
+
+//AlteredMatrix = transformMatrix(matrix);
 // Exemplo de uso:
 let matrix = [
   [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
@@ -171,8 +178,8 @@ let matrix = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
 
-let transformedMatrix = transformMatrix(matrix);
-console.log(transformedMatrix);
+//let transformedMatrix = transformMatrix(matrix);
+//console.log(transformedMatrix);
 
 
 /*
