@@ -132,52 +132,155 @@ function transformMatrix(matrix) {
   const cols = matrix[0].length;
   let transformedMatrix = Array.from({ length: rows }, () => Array(cols).fill(0));
 
-  // Inicializando as bordas externas com 1
+  // Inicializando as bordas externas apenas se tiver contato com um bloco de cômodo
   for (let i = 0; i < rows; i++) {
+    if (matrix[i][0] > 100) {
       transformedMatrix[i][0] = 1;
+    }
+    if (matrix[i][cols - 1] > 100) {
       transformedMatrix[i][cols - 1] = 1;
+    }
   }
   for (let j = 0; j < cols; j++) {
+    if (matrix[0][j] > 100) {
       transformedMatrix[0][j] = 1;
+    }
+    if (matrix[rows - 1][j] > 100) {
       transformedMatrix[rows - 1][j] = 1;
+    }
   }
 
   // Marcação de bordas internas compartilhadas apenas uma vez
   for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-          if (i < rows - 1 && matrix[i][j] !== matrix[i + 1][j]) {
-              transformedMatrix[i + 1][j] = 1; // Marca apenas a borda inferior
-          }
-          if (j < cols - 1 && matrix[i][j] !== matrix[i][j + 1]) {
-              transformedMatrix[i][j + 1] = 1; // Marca apenas a borda direita
-          }
+    for (let j = 0; j < cols; j++) {
+      if (i < rows - 1 && matrix[i][j] !== matrix[i + 1][j] && (matrix[i][j] > 100 || matrix[i + 1][j] > 100)) {
+        transformedMatrix[i + 1][j] = 1; // Marca apenas a borda inferior
       }
+      if (j < cols - 1 && matrix[i][j] !== matrix[i][j + 1] && (matrix[i][j] > 100 || matrix[i][j + 1] > 100)) {
+        transformedMatrix[i][j + 1] = 1; // Marca apenas a borda direita
+      }
+    }
   }
-  
-  console.log("matriz alterada: ",transformedMatrix);
-  window.grid = transformedMatrix;
+
+  console.log("matriz alterada: ", transformedMatrix);
+  window.grid = transformedMatrix; // armazena a matriz transformada em uma variável global
+
+  addCorners(transformedMatrix); //Adiciona os cantos à matriz transformada
+
   return transformedMatrix;
 }
+
 
 document.getElementById('add-room').addEventListener("click", function() {
   transformMatrix(roomMatrix);
 });
 
-//AlteredMatrix = transformMatrix(matrix);
-// Exemplo de uso:
-let matrix = [
-  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
-  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
-  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
-  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
-  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
-  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
-  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
-  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
-  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+//////////////////////////////////////////////////////////////////////
+//Adiciona os cantos
+
+function addCorners(matrix) {
+  let numRows = matrix.length;
+  let numCols = matrix[0].length;
+  let newMatrix = JSON.parse(JSON.stringify(matrix)); // Cópia profunda da matriz original
+
+  // Verifica os vizinhos de uma célula para padrões específicos
+  function matchesPattern(row, col) {
+      let value = matrix[row][col];
+      if (value !== 1) return false;  // Apenas processa células que inicialmente são 1
+
+      // Obtém valores dos vizinhos ou 0 se fora dos limites
+      function get(r, c) {
+          return (r >= 0 && r < numRows && c >= 0 && c < numCols) ? matrix[r][c] : 0;
+      }
+
+      // Vizinhos centrados em (row, col)
+      let top = get(row - 1, col);
+      let bottom = get(row + 1, col);
+      let left = get(row, col - 1);
+      let right = get(row, col + 1);
+      let topLeft = get(row - 1, col - 1);
+      let topRight = get(row - 1, col + 1);
+      let bottomLeft = get(row + 1, col - 1);
+      let bottomRight = get(row + 1, col + 1);
+
+      // Definir todos os padrões e rotações
+      let patterns = [
+        [0,0,0, 0,1,1, 0,1,0],
+        [0,0,0, 1,1,0, 0,1,0],
+        [0,1,0, 1,1,0, 0,0,0],
+        [0,1,0, 0,1,1, 0,0,0],
+
+        [0,0,0, 1,1,1, 0,1,0],
+        [0,1,0, 1,1,0, 0,1,0],
+        [0,1,0, 1,1,1, 0,0,0],
+        [0,1,0, 0,1,1, 0,1,0],
+
+        [0,1,0, 1,1,1, 0,1,0]
+      ];
+
+      // Converter para string para fácil comparação
+      let neighborhood = [
+          topLeft, top, topRight,
+          left, value, right,
+          bottomLeft, bottom, bottomRight
+      ];
+
+      // Comparar com cada padrão
+      return patterns.some(pattern => pattern.toString() === neighborhood.toString());
+  }
+
+  // Percorrer a matriz e aplicar as regras de substituição
+  for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+          if (matchesPattern(row, col)) {
+              newMatrix[row][col] = 2;
+          }
+      }
+  }
+
+  window.grid = newMatrix; // armazena a matriz transformada em uma variável global
+  console.log("matriz com cantos: ", newMatrix);
+  return newMatrix;
+}
+
+// Matriz exemplo
+let exampleMatrix = [
+  [0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 1, 1, 0],
+  [0, 0, 0, 1, 0, 0],
+  [1, 1, 1, 1, 0, 0],
+  [0, 0, 0, 1, 0, 0],
+  [0, 1, 0, 1, 0, 1]
 ];
 
+// Visualizar a matriz transformada
+console.log("Teey:", addCorners(exampleMatrix));
+
+
+let matrix = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+console.log(addCorners(matrix));
+
+
+// Supondo que `transformedMatrix` seja a matriz transformada anteriormente
+//let cornersAddedMatrix = addCorners(transformedMatrix);
+//console.log(cornersAddedMatrix);
+
+
+//////////////////////////////////////////////////////////////////////
+//AlteredMatrix = transformMatrix(matrix);
+// Exemplo de uso:
 //let transformedMatrix = transformMatrix(matrix);
 //console.log(transformedMatrix);
 
