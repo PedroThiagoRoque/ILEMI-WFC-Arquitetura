@@ -337,41 +337,7 @@ window.onmousemove = () => {
     previousSelection = result.object;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////////
-//Exporta em dxf
-
-function exportSceneToOBJ(scene) {
-    const exporter = new OBJExporter();
-    //console.log("data: ",exporter.parse(scene));
-    let data = exporter.parse(scene);
-   
-    return data;
-}
-
-function downloadFile(data, filename) {
-    const blob = new Blob([data], { type: 'text/plain' });
-    //console.log("blob: ",blob);
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link); // Necessário para Firefox
-    link.click();
-    document.body.removeChild(link); // Limpeza após download
-    URL.revokeObjectURL(url); // Limpar URL para liberar recursos
-}
-
-/*document.getElementById('exportaModelo').addEventListener('click', () => {
-    //const objData = exportSceneToOBJ(scene);
-    //downloadFile(objData, 'exportedScene.obj');
-    const gltfData = exportSceneToGLTF(scene);
-    downloadFile(gltfData, 'exportedScene.gltf');
-    
-});*/
-
-///////
-
 function exportGLTF( input ) {
 
     const gltfExporter = new GLTFExporter();

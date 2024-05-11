@@ -75,10 +75,7 @@ function clearSelection() {
 }
 
 function addRoom(roomType) {
- /* if (roomCounter > 10) {
-    alert('Máximo de 10 cômodos atingido.');
-    return;
-  }*/
+ 
   const color = colors[roomType - 101];
   currentSelection.forEach(cell => {
     cell.style.backgroundColor = color;
@@ -87,6 +84,7 @@ function addRoom(roomType) {
   roomCounter++;
   updateMatrixDisplay();
 }
+
 
 function displayRoomTypeMenu(x, y) {
   const menu = document.getElementById('room-type-menu');
@@ -160,14 +158,40 @@ function transformMatrix(matrix) {
         transformedMatrix[i][j + 1] = 1; // Marca apenas a borda direita
       }
     }
+  }  
+
+  // Adiciona a última célula na ultima borda dos blocos
+  // Verificar cada linha exceto a última
+  for (let i = 1; i < rows - 1; i++) {
+      for (let j = 0; j < cols; j++) {
+          // Verificar se a célula atual é '1' e se é a última linha do bloco
+          if (transformedMatrix[i][j] === 1 && transformedMatrix[i][j-1] === 1 && transformedMatrix[i + 1][j] === 0) {
+              // Identificar a última '1' na linha
+              let lastOneIndex = j;
+              while (lastOneIndex + 1 < cols && transformedMatrix[i][lastOneIndex + 1] === 1) {
+                  lastOneIndex++;
+              }
+
+              // Verificar a condição para adicionar uma parede na borda inferior
+              if (lastOneIndex + 1 < cols && transformedMatrix[i][lastOneIndex + 1] === 0) {
+                  // Verificar se acima da próxima célula '0' há uma '1'
+                  if (i > 0 && transformedMatrix[i - 1][lastOneIndex + 1] === 1) {
+                    transformedMatrix[i][lastOneIndex + 1] = 1; // Adicionar '1' para fechar o bloco
+                      break;
+                  }
+              }
+
+              // Pular para a próxima seção após a última '1' encontrada
+              j = lastOneIndex;
+          }
+      }
   }
 
-  console.log("matriz alterada: ", transformedMatrix);
-  window.grid = transformedMatrix; // armazena a matriz transformada em uma variável global
+console.log("matriz alterada: ", transformedMatrix);
+addCorners(transformedMatrix); //Adiciona os cantos à matriz transformada
 
-  addCorners(transformedMatrix); //Adiciona os cantos à matriz transformada
-
-  return transformedMatrix;
+  //window.grid = transformedMatrix; // armazena a matriz transformada em uma variável global
+  return transformedMatrix; 
 }
 
 
@@ -184,51 +208,47 @@ function addCorners(matrix) {
   let numCols = matrix[0].length;
   let newMatrix = JSON.parse(JSON.stringify(matrix)); // Cópia profunda da matriz original
 
-  // Verifica os vizinhos de uma célula para padrões específicos
-  function matchesPattern(row, col) {
-      let value = matrix[row][col];
-      if (value !== 1) return false;  // Apenas processa células que inicialmente são 1
+function matchesPattern(row, col) {
+  let value = matrix[row][col];
+  if (value !== 1 && value !== 0) return false;  // Processa apenas células que são 0 ou 1
 
-      // Obtém valores dos vizinhos ou 0 se fora dos limites
-      function get(r, c) {
-          return (r >= 0 && r < numRows && c >= 0 && c < numCols) ? matrix[r][c] : 0;
-      }
-
-      // Vizinhos centrados em (row, col)
-      let top = get(row - 1, col);
-      let bottom = get(row + 1, col);
-      let left = get(row, col - 1);
-      let right = get(row, col + 1);
-      let topLeft = get(row - 1, col - 1);
-      let topRight = get(row - 1, col + 1);
-      let bottomLeft = get(row + 1, col - 1);
-      let bottomRight = get(row + 1, col + 1);
-
-      // Definir todos os padrões e rotações
-      let patterns = [
-        [0,0,0, 0,1,1, 0,1,0],
-        [0,0,0, 1,1,0, 0,1,0],
-        [0,1,0, 1,1,0, 0,0,0],
-        [0,1,0, 0,1,1, 0,0,0],
-
-        [0,0,0, 1,1,1, 0,1,0],
-        [0,1,0, 1,1,0, 0,1,0],
-        [0,1,0, 1,1,1, 0,0,0],
-        [0,1,0, 0,1,1, 0,1,0],
-
-        [0,1,0, 1,1,1, 0,1,0]
-      ];
-
-      // Converter para string para fácil comparação
-      let neighborhood = [
-          topLeft, top, topRight,
-          left, value, right,
-          bottomLeft, bottom, bottomRight
-      ];
-
-      // Comparar com cada padrão
-      return patterns.some(pattern => pattern.toString() === neighborhood.toString());
+  // Obtém valores dos vizinhos ou 0 se fora dos limites
+  function get(r, c) {
+      return (r >= 0 && r < numRows && c >= 0 && c < numCols) ? matrix[r][c] : 0;
   }
+
+  // Vizinhos centrados em (row, col)
+  let top = get(row - 1, col);
+  let bottom = get(row + 1, col);
+  let left = get(row, col - 1);
+  let right = get(row, col + 1);
+
+  // Todos os padrões para células 1
+  let patterns = [
+      [0, 0, 1, 1], [0, 1, 0, 1], [1, 1, 0, 0], [1, 0, 1, 0],
+      [0, 1, 1, 1], [1, 1, 0, 1], [1, 1, 1, 0], [1, 0, 1, 1],
+      [1, 1, 1, 1]
+  ];
+
+  // Padrão específico para células 0 em cantos
+  let cornerPatterns = [
+      //[1, 1, 0, 0]//, [0, 1, 1, 0], [0, 0, 1, 1], [1, 0, 0, 1] // detecta 0 a mais do que deveria
+  ];
+
+  // Converter para string para fácil comparação
+  let neighborhood = [top, left, right, bottom];
+
+  if (value === 1 && patterns.some(pattern => pattern.toString() === neighborhood.toString())) {
+      return true;  // Mantém como 1
+  }
+
+  if (value === 0 && cornerPatterns.some(pattern => pattern.toString() === neighborhood.toString())) {
+      matrix[row][col] = 2;  // Transforma 0 em 2 se é um canto
+      return true;
+  } //PARA PADRÕES EM FORMATO T PARA DIREITA, CAMINHAR O CANTO PARA CÉLULA [row][col+1]
+
+  return false;
+}
 
   // Percorrer a matriz e aplicar as regras de substituição
   for (let row = 0; row < numRows; row++) {
@@ -244,20 +264,6 @@ function addCorners(matrix) {
   return newMatrix;
 }
 
-// Matriz exemplo
-let exampleMatrix = [
-  [0, 0, 0, 0, 1, 0],
-  [0, 0, 0, 1, 1, 0],
-  [0, 0, 0, 1, 0, 0],
-  [1, 1, 1, 1, 0, 0],
-  [0, 0, 0, 1, 0, 0],
-  [0, 1, 0, 1, 0, 1]
-];
-
-// Visualizar a matriz transformada
-console.log("Teey:", addCorners(exampleMatrix));
-
-
 let matrix = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -270,21 +276,82 @@ let matrix = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
-console.log(addCorners(matrix));
-
-
-// Supondo que `transformedMatrix` seja a matriz transformada anteriormente
-//let cornersAddedMatrix = addCorners(transformedMatrix);
-//console.log(cornersAddedMatrix);
+//console.log(addCorners(matrix));
 
 
 //////////////////////////////////////////////////////////////////////
-//AlteredMatrix = transformMatrix(matrix);
-// Exemplo de uso:
-//let transformedMatrix = transformMatrix(matrix);
-//console.log(transformedMatrix);
+//Transformando com thresholding
+
+function addWallAtBlockEnds(matrix) {
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+
+  // Verificar cada linha exceto a última
+  for (let i = 1; i < rows - 1; i++) {
+      for (let j = 0; j < cols; j++) {
+          // Verificar se a célula atual é '1' e se é a última linha do bloco
+          if (matrix[i][j] === 1 && matrix[i][j-1] === 1 && matrix[i + 1][j] === 0) {
+              // Identificar a última '1' na linha
+              let lastOneIndex = j;
+              while (lastOneIndex + 1 < cols && matrix[i][lastOneIndex + 1] === 1) {
+                  lastOneIndex++;
+              }
+
+              // Verificar a condição para adicionar uma parede na borda inferior
+              if (lastOneIndex + 1 < cols && matrix[i][lastOneIndex + 1] === 0) {
+                  // Verificar se acima da próxima célula '0' há uma '1'
+                  if (i > 0 && matrix[i - 1][lastOneIndex + 1] === 1) {
+                      matrix[i][lastOneIndex + 1] = 1; // Adicionar '1' para fechar o bloco
+                      break;
+                  }
+              }
+
+              // Pular para a próxima seção após a última '1' encontrada
+              j = lastOneIndex;
+          }
+      }
+  }
+}
+
+// Matriz de exemplo com vários blocos
+let matrix2 = [
+  [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+  [1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+  [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+
+addWallAtBlockEnds(matrix2);
+console.log("oiotó: ",matrix2);
 
 
+
+
+
+
+
+// Teste da função com a matriz exemplo
+let inputMatrix2 = [
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
+  [105, 105, 105, 106, 106, 106, 106, 0, 0, 0],
+  [105, 105, 105, 106, 106, 106, 106, 0, 0, 0],
+  [105, 105, 105, 106, 106, 106, 106, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+
+
+//////////////////////////////////////////////////////////////////////
 /*
 let matrix = [
   [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
@@ -293,9 +360,9 @@ let matrix = [
   [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
   [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
   [104, 104, 104, 104, 104, 103, 103, 103, 103, 103],
-  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
-  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
-  [105, 105, 105, 106, 106, 106, 106, 106, 106, 106],
+  [105, 105, 105, 106, 106, 106, 106, 0, 0, 0],
+  [105, 105, 105, 106, 106, 106, 106, 0, 0, 0],
+  [105, 105, 105, 106, 106, 106, 106, 0, 0, 0],
   [0,   0,   0,   0,   0,   0,   0,   0,   0,   0]
 ];
 
