@@ -281,7 +281,7 @@ renderer.domElement.addEventListener('click', (event) => {
     const intersects = raycaster.intersectObjects(scene.children);
 
     if (intersects.length > 0) {
-        console.log('Clicado bloco', intersects[0]);
+        //console.log('Clicado bloco', intersects[0]);
 
         intersects[0].object.parent.parent.rotation.y += Math.PI / 2; // 90 graus em radianos
         modelID = intersects[0].object.id;
@@ -338,69 +338,106 @@ window.onmousemove = () => {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
-function exportGLTF( input ) {
+//Selecionado blocos para alterar
 
-    const gltfExporter = new GLTFExporter();
-    const params = {
-        trs: true,
-        onlyVisible: true,
-        binary: false,
-        maxTextureSize: 4096
-    };
+let activeButton = null; // Estado para acompanhar o botão ativo
 
-    const options = {
-        trs: params.trs,
-        onlyVisible: params.onlyVisible,
-        binary: params.binary,
-        maxTextureSize: params.maxTextureSize
-    };
-    gltfExporter.parse(
-        input,
-        function ( result ) {
+// Função para definir o botão ativo
+function setActiveButton(buttonId) {
+    if (activeButton === buttonId) {
+        activeButton = null; // Desativa se o mesmo botão for clicado novamente
+    } else {
+        activeButton = buttonId;
+    }
+    
+    // Atualiza a classe dos botões para refletir o estado ativo
+    document.querySelectorAll('.btn-verde').forEach(button => {
+        if (button.id === activeButton) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+}
 
-            if ( result instanceof ArrayBuffer ) {
-                saveArrayBuffer( result, 'scene.glb' );
-            } else {
-                const output = JSON.stringify( result, null, 2 );
-                console.log( output );
-                saveString( output, 'scene.gltf' );
+// Adiciona ouvintes de eventos aos botões
+document.getElementById('criaPorta').addEventListener('click', () => setActiveButton('criaPorta'));
+document.getElementById('criaJanela').addEventListener('click', () => setActiveButton('criaJanela'));
+document.getElementById('criaParede').addEventListener('click', () => setActiveButton('criaParede'));
+document.getElementById('criaCanto').addEventListener('click', () => setActiveButton('criaCanto'));
+document.getElementById('criaPiso').addEventListener('click', () => setActiveButton('criaPiso'));
+
+// Modifica o evento de clique do mouse para substituir o bloco
+renderer.domElement.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    // Atualiza a posição do mouse usando a nova função getMousePos
+    const pos = getMousePos(event);
+    mouse.x = pos.x;
+    mouse.y = pos.y;
+
+    // Atualizar o raycaster com a posição do mouse e a câmera
+    raycaster.setFromCamera(mouse, camera);
+
+    // Calcular objetos que interceptam o raio lançado
+    const intersects = raycaster.intersectObjects(scene.children);
+
+    if (intersects.length > 0 && activeButton !== null) {
+        const intersectedObject = intersects[0].object.parent.parent;
+
+        // Determina o índice do bloco a ser substituído com base no botão ativo
+        let newIndex;
+        switch (activeButton) {
+            case 'criaPorta':
+                newIndex = 3;
+                break;
+            case 'criaJanela':
+                newIndex = 4;
+                break;
+            case 'criaParede':
+                newIndex = 1;
+                break;
+            case 'criaPiso':
+                newIndex = 0;
+                break;
+            case 'criaCanto':
+                newIndex = 2;
+                break;
+            default:
+                return;
+        }
+
+        // Serializa o novo bloco para JSON
+        const newBlockJson = blocos[newIndex].toJSON();
+        const newBlockStringJson = JSON.stringify(newBlockJson);
+
+        // Desserializa o JSON para um novo objeto Three.js
+        const objectLoader = new THREE.ObjectLoader();
+        const newBlockClone = objectLoader.parse(JSON.parse(newBlockStringJson));
+
+        // Mantém a posição do objeto original
+        newBlockClone.position.copy(intersectedObject.position);
+
+        // Remove o objeto original da cena
+            // Remove intersectedObject do array objetos
+            const index = objetos.indexOf(intersectedObject);
+            if (index > -1) {
+                objetos.splice(index, 1);
             }
+        scene.remove(intersectedObject);
 
-        },
-        function ( error ) {
-            console.log( 'An error happened during parsing', error );
-        },
-        options
-    );
+        // Adiciona o novo bloco clonado à cena
+        objetos.push(newBlockClone);
+        scene.add(newBlockClone);
 
-}
+        // Desativa o toggle do botão ativo
+        activeButton = null;
+        document.querySelectorAll('.btn-verde').forEach(button => button.classList.remove('active'));
 
-const link = document.createElement( 'a' );
-link.style.display = 'none';
-document.body.appendChild( link ); // Firefox workaround, see #6594
-
-function save( blob, filename ) {
-
-    link.href = URL.createObjectURL( blob );
-    link.download = filename;
-    link.click();
-
-    // URL.revokeObjectURL( url ); breaks Firefox...
-
-}
-
-function saveString( text, filename ) {
-    save( new Blob( [ text ], { type: 'text/plain' } ), filename );
-}
-
-
-function saveArrayBuffer( buffer, filename ) {
-    save( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
-}
-
-document.getElementById('exportaModelo').addEventListener('click', () => { 
-    exportGLTF(components.scene.get());
+    }
 });
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 // 6. Função de animação
@@ -410,4 +447,4 @@ function animate() {
 }
 
 // 7. Posicionar a câmera e iniciar a animação
-animate();
+animate(); 

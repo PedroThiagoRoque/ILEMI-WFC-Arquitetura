@@ -350,6 +350,80 @@ let inputMatrix2 = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
 
+//transformMatrix(inputMatrix2)
+
+function transformMatrix2(matrix) {
+  const m = matrix.length;
+  const n = matrix[0].length;
+  let transformedMatrix = Array.from({ length: m }, () => Array(n).fill(0));
+
+  function applyRulesForBlock(i1, j1, i2, j2, value) {
+      // Aplicar regras para centros e bordas internas
+      for (let i = i1; i <= i2; i++) {
+          for (let j = j1; j <= j2; j++) {
+              if (i === i1 || i === i2 || j === j1 || j === j2) {
+                  transformedMatrix[i][j] = 1; // Bordas
+              } else {
+                  transformedMatrix[i][j] = 0; // Centro
+              }
+          }
+      }
+
+      // Aplicar regras para os cantos
+      transformedMatrix[i1][j1] = 2; // Canto superior esquerdo
+      transformedMatrix[i1][j2] = 2; // Canto superior direito
+      transformedMatrix[i2][j1] = 2; // Canto inferior esquerdo
+      transformedMatrix[i2][j2] = 2; // Canto inferior direito
+  }
+
+  // Função para marcar as bordas compartilhadas de forma correta
+  function markSharedBorders() {
+      for (let i = 0; i < m - 1; i++) {
+          for (let j = 0; j < n - 1; j++) {
+              if (matrix[i][j] !== matrix[i + 1][j]) {
+                  transformedMatrix[i + 1][j] = Math.max(transformedMatrix[i + 1][j], 1); // Borda inferior
+              }
+              if (matrix[i][j] !== matrix[i][j + 1]) {
+                  transformedMatrix[i][j + 1] = Math.max(transformedMatrix[i][j + 1], 1); // Borda direita
+              }
+          }
+      }
+  }
+
+  // Detectar blocos usando DFS e aplicar regras
+  let visited = Array.from({ length: m }, () => Array(n).fill(false));
+  function dfs(i, j, value, blockBounds) {
+      if (i < 0 || j < 0 || i >= m || j >= n || visited[i][j] || matrix[i][j] !== value) return;
+      visited[i][j] = true;
+      blockBounds.minI = Math.min(blockBounds.minI, i);
+      blockBounds.maxI = Math.max(blockBounds.maxI, i);
+      blockBounds.minJ = Math.min(blockBounds.minJ, j);
+      blockBounds.maxJ = Math.max(blockBounds.maxJ, j);
+      dfs(i - 1, j, value, blockBounds);
+      dfs(i + 1, j, value, blockBounds);
+      dfs(i, j - 1, value, blockBounds);
+      dfs(i, j + 1, value, blockBounds);
+  }
+
+  for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n; j++) {
+          if (!visited[i][j]) {
+              let blockBounds = { minI: i, maxI: i, minJ: j, maxJ: j };
+              dfs(i, j, matrix[i][j], blockBounds);
+              applyRulesForBlock(blockBounds.minI, blockBounds.minJ, blockBounds.maxI, blockBounds.maxJ, matrix[i][j]);
+          }
+      }
+  }
+
+  markSharedBorders();
+
+  return transformedMatrix;
+}
+
+
+console.log("Grammar de home: ", transformMatrix2(inputMatrix2));
+
+
 
 //////////////////////////////////////////////////////////////////////
 /*

@@ -170,9 +170,29 @@ td {
   background-color: #9E8572;
   color: white
 }
+
+#blocoMenu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#blocoMenu li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#blocoMenu li:hover {
+  background-color: #e0e0e0;
+}
+
   </style>
 </head>
 <body>
+  <header>
+    <img src="/public/logoilemi-preto.png" alt="Logotipo ILÊMI" height="60">
+</header>
+
 <div class="container">
         <div class="row" id="principal">
           <div class="col-sm-12 col-md-6">
@@ -180,7 +200,7 @@ td {
               
                 <div id="table-container"></div>
                 <button id="generate-table" class="btn btn-verde shadow-none mt-3">Limpar Tabela</button>
-                <button id="add-room" class="btn btn-primary">Adicionar Cômodo</button>
+                <button id="add-room" class="btn btn-verde shadow-none mt-3">Adicionar Cômodo</button>
             </div>
             <div id="matrix-display-container"><table class="matrix-display"></table></div>
 
@@ -189,9 +209,12 @@ td {
           <div class="col-sm-12 col-md-6">
             <div class="rounded-container">
               <div id="containerCena" style="height: 400px;"> </div>
-    
               <button id="criaCena" class="btn btn-verde shadow-none mt-3">Criar modelo</button>
-              <button id="exportaModelo" class="btn btn-verde shadow-none mt-3">Exportar modelo</button>
+              <button id="criaPorta" class="btn btn-verde shadow-none mt-3">Criar Porta</button>
+              <button id="criaJanela" class="btn btn-verde shadow-none mt-3">Criar Janela</button>
+              <button id="criaParede" class="btn btn-verde shadow-none mt-3">Criar Parede</button>
+              <button id="criaCanto" class="btn btn-verde shadow-none mt-3">Criar Canto</button>
+              <button id="criaPiso" class="btn btn-verde shadow-none mt-3">Criar Piso</button>
             </div>
           </div>
         </div>
@@ -210,8 +233,19 @@ td {
         <button class="btn btn-primary room-type" data-type="109">Janela</button>
       </div>
 
+      <div id="blocoMenu" style="display: block; position: fixed; background-color: white; border: 1px solid black; padding: 10px; z-index: 1000;">
+        <ul>
+          <li onclick="trocarBloco(0)">Base</li>
+          <li onclick="trocarBloco(1)">Parede</li>
+          <li onclick="trocarBloco(2)">Piso</li>
+          <li onclick="trocarBloco(3)">Porta</li>
+          <li onclick="trocarBloco(4)">Janela</li>
+        </ul>
+      </div>    
+
       <footer>
-        Criado por <a href="https://github.com/PedroThiagoRoque" target="_blank">Pedro Thiago Roque</a>
+        <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/PedroThiagoRoque/ILEMI-WFC-Arquitetura">ILÊMI</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/PedroThiagoRoque">Pedro Thiago Roque</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>
+        <!-- Criado por <a href="https://github.com/PedroThiagoRoque" target="_blank">Pedro Thiago Roque</a> -->
       </footer>
     
       
