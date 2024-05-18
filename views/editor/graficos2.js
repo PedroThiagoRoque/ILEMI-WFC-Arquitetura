@@ -353,9 +353,9 @@ function setActiveButton(buttonId) {
     // Atualiza a classe dos botões para refletir o estado ativo
     document.querySelectorAll('.btn-verde').forEach(button => {
         if (button.id === activeButton) {
-            button.classList.add('active');
+            button.classList.add('btn-active');
         } else {
-            button.classList.remove('active');
+            button.classList.remove('btn-active');
         }
     });
 }
@@ -366,6 +366,7 @@ document.getElementById('criaJanela').addEventListener('click', () => setActiveB
 document.getElementById('criaParede').addEventListener('click', () => setActiveButton('criaParede'));
 document.getElementById('criaCanto').addEventListener('click', () => setActiveButton('criaCanto'));
 document.getElementById('criaPiso').addEventListener('click', () => setActiveButton('criaPiso'));
+document.getElementById('selecionar').addEventListener('click', () => setActiveButton('default'));
 
 // Modifica o evento de clique do mouse para substituir o bloco
 renderer.domElement.addEventListener('click', (event) => {
@@ -431,8 +432,8 @@ renderer.domElement.addEventListener('click', (event) => {
         scene.add(newBlockClone);
 
         // Desativa o toggle do botão ativo
-        activeButton = null;
-        document.querySelectorAll('.btn-verde').forEach(button => button.classList.remove('active'));
+        //activeButton = null;
+        //document.querySelectorAll('.btn-verde').forEach(button => button.classList.remove('btn-active'));
 
     }
 });

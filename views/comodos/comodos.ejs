@@ -13,12 +13,12 @@
       font-family: 'Roboto', sans-serif;
       background-color: #EAE0CC;
     }
-    header {
+    /*header {
       background-color: #F7F3E3;
       width: 100%;
       padding: 1.2rem 3rem;
       margin-bottom: 2rem;
-    }
+    }*/
     
     .rounded-container {
       background-color: #F7F3E3;
@@ -129,16 +129,6 @@ td {
   }
 
   #room-type-menu {
-    /*position: absolute;
-    display: none;
-    background-color: white;
-    border: 1px solid #ccc;
-    padding: 10px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: space-evenly;*/
     position: absolute;
     display: none;
     background-color: white;
@@ -147,7 +137,7 @@ td {
     z-index: 1000;
     width: auto; /* ou especificar uma largura fixa */
     grid-template-columns: repeat(2, 1fr); /* Cria duas colunas de igual largura */
-    display: grid;
+    display: none;
     gap: 5px; /* Espaço entre os botões */
 
   }
@@ -171,26 +161,95 @@ td {
   color: white
 }
 
-#blocoMenu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.btn-active {
+    background-color: #9E8572; /* Cor de fundo verde */
+    border-color: #3e3b2c; /* Cor da borda verde */
+    color: white; /* Cor do texto branco */
 }
 
-#blocoMenu li {
-  padding: 8px;
-  cursor: pointer;
+header {
+    background-color: #F7F3E3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    height: auto;
 }
+        .menu-container {
+            display: flex;
+            align-items: center;
+        }
+        .menu-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .menu-divider {
+            width: 2px;
+            height: 60px;
+            background-color: #D9B08C; /* Cinza alaranjado */
+            margin: 0 10px;
+        }
+        .menu-button {
+            background-color: #F7F3E3;
+            color: #3e3b2c;
+            margin: 2px 0;
+            padding: 3px 10px;
+            font-size: 11px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .menu-button:hover {
+            background-color: #9E8572;
+        }
+        .menu-button-active {
+            background-color: #cfcdb7;
+            color: #3e3b2c;
+            border: none;
+        }
+        .menu-button img {
+          height: 25px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        #logo {
+            margin-right: 60px;
+        }
+        .menu-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #3e3b2c;
+            margin: 5px 0px;
+            margin-top: 33%;
 
-#blocoMenu li:hover {
-  background-color: #e0e0e0;
-}
-
+        }
   </style>
 </head>
 <body>
   <header>
-    <img src="/public/logoilemi-preto.png" alt="Logotipo ILÊMI" height="60">
+    <img id="logo" src="/public/logoilemi-preto.png" alt="Logotipo ILÊMI" height="60">
+    <div class="menu-divider"></div>
+    <div id="menu" class="menu-container">
+      <div class="menu-column">
+          <button id="selecionar" class="menu-button"><img src="/public/icons/icon-mouse.png" alt="Mouse Icon">Selecionar</button>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-column">
+          <button id="criaPorta" class="menu-button"><img src="/public/icons/icon-porta.png" alt="Porta Icon">Porta</button>
+          <button id="criaJanela" class="menu-button"><img src="/public/icons/icon-janela.png" alt="Janela Icon">Janela</button>
+          <button id="criaParede" class="menu-button"><img src="/public/icons/icon-parede.png" alt="Parede Icon">Parede</button>
+      </div>
+      <div class="menu-title">Blocos</div>
+      <div class="menu-column">
+          <button id="criaCanto" class="menu-button"><img src="/public/icons/icon-canto.png" alt="Canto Icon">Canto</button>
+          <button id="criaPiso" class="menu-button"><img src="/public/icons/icon-piso.png" alt="Piso Icon">Piso</button>  
+      </div>
+      <div class="menu-divider"></div>   
+  </div>
+
 </header>
 
 <div class="container">
@@ -202,19 +261,14 @@ td {
                 <button id="generate-table" class="btn btn-verde shadow-none mt-3">Limpar Tabela</button>
                 <button id="add-room" class="btn btn-verde shadow-none mt-3">Adicionar Cômodo</button>
             </div>
-            <div id="matrix-display-container"><table class="matrix-display"></table></div>
 
+            <!--<div id="matrix-display-container"><table class="matrix-display"></table></div> -->
 
           </div>
           <div class="col-sm-12 col-md-6">
             <div class="rounded-container">
               <div id="containerCena" style="height: 400px;"> </div>
-              <button id="criaCena" class="btn btn-verde shadow-none mt-3">Criar modelo</button>
-              <button id="criaPorta" class="btn btn-verde shadow-none mt-3">Criar Porta</button>
-              <button id="criaJanela" class="btn btn-verde shadow-none mt-3">Criar Janela</button>
-              <button id="criaParede" class="btn btn-verde shadow-none mt-3">Criar Parede</button>
-              <button id="criaCanto" class="btn btn-verde shadow-none mt-3">Criar Canto</button>
-              <button id="criaPiso" class="btn btn-verde shadow-none mt-3">Criar Piso</button>
+               <button id="criaCena" class="btn btn-verde shadow-none mt-3">Criar modelo</button>
             </div>
           </div>
         </div>
@@ -233,25 +287,30 @@ td {
         <button class="btn btn-primary room-type" data-type="109">Janela</button>
       </div>
 
-      <div id="blocoMenu" style="display: block; position: fixed; background-color: white; border: 1px solid black; padding: 10px; z-index: 1000;">
-        <ul>
-          <li onclick="trocarBloco(0)">Base</li>
-          <li onclick="trocarBloco(1)">Parede</li>
-          <li onclick="trocarBloco(2)">Piso</li>
-          <li onclick="trocarBloco(3)">Porta</li>
-          <li onclick="trocarBloco(4)">Janela</li>
-        </ul>
-      </div>    
-
       <footer>
-        <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/PedroThiagoRoque/ILEMI-WFC-Arquitetura">ILÊMI</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/PedroThiagoRoque">Pedro Thiago Roque</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>
-        <!-- Criado por <a href="https://github.com/PedroThiagoRoque" target="_blank">Pedro Thiago Roque</a> -->
+        <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/PedroThiagoRoque/ILEMI-WFC-Arquitetura">ILÊMI</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/PedroThiagoRoque">Pedro Thiago Roque</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:18px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>
       </footer>
-    
-      
-        <div id="popup-container" style="display: none; position: absolute; z-index: 10;">
-        
+            
         </div>
+
+        <script>
+          document.querySelectorAll('.menu-button').forEach(button => {
+              button.addEventListener('click', () => {
+                  document.querySelectorAll('.menu-button').forEach(btn => {
+                      btn.classList.remove('menu-button-active');
+                  });
+                  if (button.id !== 'selecionar') {
+                      button.classList.add('menu-button-active');
+                  }
+              });
+          });
+  
+          document.getElementById('selecionar').addEventListener('click', () => {
+              document.querySelectorAll('.menu-button').forEach(btn => {
+                  btn.classList.remove('menu-button-active');
+              });
+          });
+      </script>
 
         <script src="/public/comodos.js"></script>
         <script type="module" src="/public/bundle.js"></script>

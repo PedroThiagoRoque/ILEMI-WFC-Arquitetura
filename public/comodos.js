@@ -106,8 +106,7 @@ function displayRoomTypeMenu(x, y) {
 }
 
 function updateMatrixDisplay() {
-  const matrixDisplay = document.querySelector('.matrix-display');
-  matrixDisplay.innerHTML = '';
+
   roomMatrix.forEach(row => {
     const tr = document.createElement('tr');
     row.forEach(cell => {
@@ -115,12 +114,12 @@ function updateMatrixDisplay() {
       td.textContent = cell;
       tr.appendChild(td);
     });
-    matrixDisplay.appendChild(tr);
+    
   });
 }
 
 createTable(10, 10);
-updateMatrixDisplay();
+//updateMatrixDisplay();
 
 //////////////////////////////////////////////////////////////////////
 //Transformaçação em layout ILÊMI
