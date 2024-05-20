@@ -226,6 +226,14 @@ header {
             margin-top: 33%;
 
         }
+
+ .toast-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1500;
+        }
+
   </style>
 </head>
 <body>
@@ -252,6 +260,8 @@ header {
 
 </header>
 
+<div class="toast-container"></div>
+
 <div class="container">
         <div class="row" id="principal">
           <div class="col-sm-12 col-md-6">
@@ -259,7 +269,7 @@ header {
               
                 <div id="table-container"></div>
                 <button id="generate-table" class="btn btn-verde shadow-none mt-3">Limpar Tabela</button>
-                <button id="add-room" class="btn btn-verde shadow-none mt-3">Adicionar Cômodo</button>
+                <button id="add-room" class="btn btn-verde shadow-none mt-3">Finalizar</button>
             </div>
 
             <!--<div id="matrix-display-container"><table class="matrix-display"></table></div> -->
@@ -268,7 +278,7 @@ header {
           <div class="col-sm-12 col-md-6">
             <div class="rounded-container">
               <div id="containerCena" style="height: 400px;"> </div>
-               <button id="criaCena" class="btn btn-verde shadow-none mt-3">Criar modelo</button>
+               <button id="criaCena" class="btn btn-verde shadow-none mt-3">Criar Visualização</button>
             </div>
           </div>
         </div>
@@ -290,10 +300,9 @@ header {
       <footer>
         <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/PedroThiagoRoque/ILEMI-WFC-Arquitetura">ILÊMI</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/PedroThiagoRoque">Pedro Thiago Roque</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:18px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>
       </footer>
-            
-        </div>
-
-        <script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script> 
+      <script>
           document.querySelectorAll('.menu-button').forEach(button => {
               button.addEventListener('click', () => {
                   document.querySelectorAll('.menu-button').forEach(btn => {
@@ -302,6 +311,9 @@ header {
                   if (button.id !== 'selecionar') {
                       button.classList.add('menu-button-active');
                   }
+  
+                  // Mostrar toast
+                  showToast(button.id);
               });
           });
   
@@ -309,7 +321,79 @@ header {
               document.querySelectorAll('.menu-button').forEach(btn => {
                   btn.classList.remove('menu-button-active');
               });
+
           });
+  
+          function showToast(buttonId) {
+              let toastMessage = '';
+              let titleToast ='';
+              switch (buttonId) {
+                  case 'selecionar':
+                      toastMessage = 'Modo Selecionar: Use este modo para selecionar e modificar elementos existentes.';
+                      return;
+                  case 'criaPorta':
+                      toastMessage = 'Criar Porta: Clique em um local para adicionar uma porta.';
+                      titleToast = 'Porta';
+                      break;
+                  case 'criaJanela':
+                      toastMessage = 'Criar Janela: Clique em um local para adicionar uma janela.';
+                      titleToast = 'Janela';
+                      break;
+                  case 'criaParede':
+                      toastMessage = 'Criar Parede: Clique em um local para adicionar uma parede.';
+                      titleToast = 'Parede';
+                      break;
+                  case 'criaCanto':
+                      toastMessage = 'Criar Canto: Clique em um local para adicionar um canto.';
+                      titleToast = 'Canto';
+                      break;
+                  case 'criaPiso':
+                      toastMessage = 'Criar Piso: Clique em um local para adicionar um piso.';
+                      titleToast = 'Piso';
+                      break;
+                  default:
+                      toastMessage = 'Viva a Habitação Popular de qualidade!';
+                      titleToast = 'ILÊMI';
+              }
+              
+              // Obter o horário atual
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+
+              // Criação do elemento toast
+              const toast = document.createElement('div');
+              toast.className = 'toast align-items-center text-bg-primary border-0';
+              toast.setAttribute('role', 'alert');
+              toast.setAttribute('aria-live', 'assertive');
+              toast.setAttribute('aria-atomic', 'true');
+              toast.setAttribute('data-bs-autohide', 'true');
+              toast.setAttribute('data-bs-delay', '5000');  // Define o tempo de exibição do toast (em milissegundos)
+              toast.innerHTML = `
+                <div class="toast-header">
+                  <strong class="mr-auto"> ${titleToast}</strong>
+                  <small>${hours}:${minutes}</small>
+                  <button type="button" class="ml-2 mb-1 close" data-bs-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="toast-body">
+                  ${toastMessage}
+                </div>
+              `;
+  
+              // Adicionar o toast ao contêiner
+              document.querySelector('.toast-container').appendChild(toast);
+  
+              // Inicializar e mostrar o toast
+              const bsToast = new bootstrap.Toast(toast);
+              bsToast.show();
+  
+              // Remover o toast após escondê-lo
+              toast.addEventListener('hidden.bs.toast', () => {
+                  toast.remove();
+              });
+          }
       </script>
 
         <script src="/public/comodos.js"></script>
@@ -317,5 +401,6 @@ header {
       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/js/bootstrap.min.js"></script>
+
 </body>
 </html>
