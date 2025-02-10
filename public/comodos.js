@@ -1,6 +1,6 @@
 
 const tamanho = 10;
-let roomMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
+let roomMatrix = Array.from({ length: tamanho }, () => Array(tamanho).fill(0));
 window.grid = roomMatrix;
 
 //////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ function updateMatrixDisplay() {
   });
 }
 
-createTable(10, 10);
+createTable(tamanho, tamanho);
 //updateMatrixDisplay();
 
 //////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ function transformMatrix(matrix) {
     }
   }  
 
-  // Adiciona a última célula na ultima borda dos blocos
+  // Adiciona a última célula na ultima borda dos blocos, gambiarra da braba ( ͡° ͜ʖ ͡°)
   // Verificar cada linha exceto a última
   for (let i = 1; i < rows - 1; i++) {
       for (let j = 0; j < cols; j++) {
@@ -281,60 +281,6 @@ let matrix = [
 //////////////////////////////////////////////////////////////////////
 //Transformando com thresholding
 
-function addWallAtBlockEnds(matrix) {
-  const rows = matrix.length;
-  const cols = matrix[0].length;
-
-  // Verificar cada linha exceto a última
-  for (let i = 1; i < rows - 1; i++) {
-      for (let j = 0; j < cols; j++) {
-          // Verificar se a célula atual é '1' e se é a última linha do bloco
-          if (matrix[i][j] === 1 && matrix[i][j-1] === 1 && matrix[i + 1][j] === 0) {
-              // Identificar a última '1' na linha
-              let lastOneIndex = j;
-              while (lastOneIndex + 1 < cols && matrix[i][lastOneIndex + 1] === 1) {
-                  lastOneIndex++;
-              }
-
-              // Verificar a condição para adicionar uma parede na borda inferior
-              if (lastOneIndex + 1 < cols && matrix[i][lastOneIndex + 1] === 0) {
-                  // Verificar se acima da próxima célula '0' há uma '1'
-                  if (i > 0 && matrix[i - 1][lastOneIndex + 1] === 1) {
-                      matrix[i][lastOneIndex + 1] = 1; // Adicionar '1' para fechar o bloco
-                      break;
-                  }
-              }
-
-              // Pular para a próxima seção após a última '1' encontrada
-              j = lastOneIndex;
-          }
-      }
-  }
-}
-
-// Matriz de exemplo com vários blocos
-let matrix2 = [
-  [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 1, 1, 1, 1, 0, 0],
-  [1, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-  [1, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-  [1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-  [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-];
-
-addWallAtBlockEnds(matrix2);
-console.log("oiotó: ",matrix2);
-
-
-
-
-
-
-
 // Teste da função com a matriz exemplo
 let inputMatrix2 = [
   [101, 101, 101, 101, 101, 102, 102, 102, 102, 102],
@@ -420,7 +366,8 @@ function transformMatrix2(matrix) {
 }
 
 
-console.log("Grammar de home: ", transformMatrix2(inputMatrix2));
+console.log("Geração a partir de gramática: ", transformMatrix2(inputMatrix2));
+//Ainda deixa bordas duplicadas, talvez combinar a remoção de bordas duplicadas internas com as regras da gramática, ou aprimorar as regras né ¯\_(ツ)_/¯
 
 
 
